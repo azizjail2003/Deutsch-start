@@ -18,7 +18,21 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: "Deutsch Start — Learn German A1–B1, free",
   description:
-    "A free home base for learning German from A1 to B1: a 142-lesson roadmap across three levels, vocabulary practice, and the best free resources for grammar, vocabulary, listening, speaking and writing.",
+    "A free, open home base for learning German from A1 to B1: a 142-lesson roadmap across three levels, vocabulary practice with spaced repetition, and the best free resources for grammar, vocabulary, listening, speaking and writing.",
+  applicationName: "Deutsch Start",
+  authors: [{ name: "Abdelaziz Jail", url: "mailto:jailabdelaziz@icloud.com" }],
+  creator: "Abdelaziz Jail",
+  keywords: [
+    "learn German", "German A1", "German A2", "German B1", "German vocabulary",
+    "German flashcards", "spaced repetition", "free German course", "Deutsch lernen",
+  ],
+  openGraph: {
+    title: "Deutsch Start — Learn German A1–B1, free",
+    description:
+      "A free, open home base for learning German A1–B1: a 142-lesson roadmap, vocabulary practice with spaced repetition, and curated free resources.",
+    siteName: "Deutsch Start",
+    type: "website",
+  },
   // Send no Referer on subresource requests so the online TTS audio source
   // (which 404s when a Referer is present) returns audio in the browser.
   referrer: "no-referrer",
