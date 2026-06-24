@@ -15,7 +15,12 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Deutsch Start — Learn German A1–B1, free",
   description:
     "A free, open home base for learning German from A1 to B1: a 142-lesson roadmap across three levels, vocabulary practice with spaced repetition, and the best free resources for grammar, vocabulary, listening, speaking and writing.",
@@ -32,6 +37,11 @@ export const metadata: Metadata = {
       "A free, open home base for learning German A1–B1: a 142-lesson roadmap, vocabulary practice with spaced repetition, and curated free resources.",
     siteName: "Deutsch Start",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Deutsch Start — Learn German A1–B1, free",
+    description: "A free, open home base for learning German A1–B1: a 142-lesson roadmap, spaced-repetition practice, and curated free resources.",
   },
   // Send no Referer on subresource requests so the online TTS audio source
   // (which 404s when a Referer is present) returns audio in the browser.
