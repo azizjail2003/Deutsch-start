@@ -259,25 +259,12 @@ export function isSpeechAvailable(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window;
 }
 
-export function hasGermanVoice(): boolean {
-  return refreshVoices().some((v) => v.lang.toLowerCase().startsWith("de"));
-}
-
 let primed = false;
 export function primeSpeech() {
   if (primed || !isSpeechAvailable()) return;
   primed = true;
   try { window.speechSynthesis.resume(); } catch { /* ignore */ }
   refreshVoices();
-}
-
-export type SpeechDiag = { supported: boolean; voices: number; german: string | null };
-
-export function getSpeechDiagnostics(): SpeechDiag {
-  if (!isSpeechAvailable()) return { supported: false, voices: 0, german: null };
-  const voices = refreshVoices();
-  const g = voices.find((v) => v.lang.toLowerCase().startsWith("de"));
-  return { supported: true, voices: voices.length, german: g ? `${g.name} (${g.lang})` : null };
 }
 
 // Fallback only: the browser's local speech engine (needs an installed voice).
