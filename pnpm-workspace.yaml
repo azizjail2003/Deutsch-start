@@ -3,3 +3,9 @@
 # transitively by Next.js for image optimization.
 allowBuilds:
   sharp: true
+
+# Force a patched postcss (>=8.5.10) over the version Next.js pulls in
+# transitively, clearing GHSA-qx2v-qp2m-jg93 (a build-time-only XSS in CSS
+# stringify that isn't reachable in this app).
+overrides:
+  postcss@<8.5.10: ">=8.5.10"
