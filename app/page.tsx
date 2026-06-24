@@ -1,15 +1,20 @@
 "use client";
 
 import {
-  ArrowRight, ArrowUpRight, BookOpen, Dumbbell, GraduationCap, Headphones, Languages,
-  Library, MapPin, Mic, Moon, PenLine, Play, Search, Sparkles, Sun,
+  ArrowRight, ArrowUpRight, BookOpen, Check, Dumbbell, Flame, GraduationCap, Headphones, Languages,
+  Library, MapPin, Mic, Moon, PenLine, Play, RotateCcw, Search, Sparkles, Sun, Target, Trophy, X, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   GermanLevel, lessons, lessonUrl, levels, resourcesForSkill, skills, SkillId,
   totalLessons, vocabularyUrl,
 } from "@/data/german";
-import { getVolume, setSoundEnabled, setVolume, soundEnabled } from "@/lib/practice";
+import { getPracticeXp, getVolume, playEffect, setSoundEnabled, setVolume, soundEnabled } from "@/lib/practice";
+import {
+  completedCount, currentDay, deckAtIndex, initialPlanState, isFinished, lessonIndicesForDay,
+  loadPlanState, markDay, PlanState, planStreak, planUnlockedIndex, planXp, savePlanState,
+  startTrack, TRACKS, trackById, unmarkDay, XP_PER_DAY,
+} from "@/lib/plan";
 import Practice from "@/components/Practice";
 import SoundControl from "@/components/SoundControl";
 
@@ -18,8 +23,8 @@ const skillIcon: Record<SkillId, React.ComponentType<{ size?: number }>> = {
   speaking: Mic, writing: PenLine, exam: GraduationCap,
 };
 
-type View = "home" | "lessons" | "practice" | "resources";
-const NAV: [View, string][] = [["home", "Home"], ["lessons", "Lessons"], ["practice", "Practice"], ["resources", "Resources"]];
+type View = "home" | "plan" | "lessons" | "practice" | "resources";
+const NAV: [View, string][] = [["home", "Home"], ["plan", "Plan"], ["lessons", "Lessons"], ["practice", "Practice"], ["resources", "Resources"]];
 
 export default function Home() {
   const [view, setView] = useState<View>("home");
@@ -29,12 +34,32 @@ export default function Home() {
   const [focus, setFocus] = useState<{ level: GermanLevel; lesson: number } | null>(null);
   const [sound, setSound] = useState(true);
   const [volume, setVolumeState] = useState(0.7);
+  const [plan, setPlan] = useState<PlanState>(initialPlanState);
+  const [hydrated, setHydrated] = useState(false);
+  const [planToast, setPlanToast] = useState<{ day: number; xp: number } | null>(null);
 
   useEffect(() => {
     setDark(localStorage.getItem("deutsch-start-theme") === "dark");
     setSound(soundEnabled());
     setVolumeState(getVolume());
+    setPlan(loadPlanState());
+    setHydrated(true);
   }, []);
+  useEffect(() => { if (hydrated) savePlanState(plan); }, [plan, hydrated]);
+
+  const track = trackById(plan.trackId);
+  const planIndex = track ? planUnlockedIndex(plan, track) : undefined;
+  const totalXp = planXp(plan) + (hydrated ? getPracticeXp() : 0);
+
+  const choosePlan = (id: string) => { const t = trackById(id); if (t) setPlan(startTrack(t)); };
+  const resetPlan = () => { if (window.confirm("Change your plan? Your day progress for this plan will be cleared.")) setPlan(initialPlanState()); };
+  const completePlanDay = (d: number) => {
+    setPlan((p) => markDay(p, d));
+    playEffect("achievement");
+    setPlanToast({ day: d, xp: XP_PER_DAY });
+    window.setTimeout(() => setPlanToast((t) => (t && t.day === d ? null : t)), 8000);
+  };
+  const undoPlanDay = () => { if (planToast) { setPlan((p) => unmarkDay(p, planToast.day)); setPlanToast(null); } };
   useEffect(() => { document.documentElement.dataset.theme = dark ? "dark" : "light"; }, [dark]);
   const toggleTheme = () => setDark((v) => { const n = !v; localStorage.setItem("deutsch-start-theme", n ? "dark" : "light"); return n; });
   const toggleSound = () => setSound((s) => { const n = !s; setSoundEnabled(n); return n; });
@@ -89,6 +114,16 @@ export default function Home() {
 
       {view === "home" && (
         <main className="wrap">
+          {track && (
+            <button className="plan-resume" onClick={() => go("plan")}>
+              <span className="plan-resume-ic"><Target size={18} /></span>
+              <span className="plan-resume-text">
+                <strong>{isFinished(plan, track) ? "Plan complete 🎉" : `Continue your plan · Day ${currentDay(plan, track)} of ${track.days}`}</strong>
+                <small>{track.name} · {totalXp.toLocaleString()} XP · {planStreak(plan)}-day streak</small>
+              </span>
+              <ArrowRight size={18} />
+            </button>
+          )}
           <section className="hero">
             <div>
               <span className="eyebrow"><MapPin size={13} /> German A1 → B1</span>
@@ -173,6 +208,76 @@ export default function Home() {
         </main>
       )}
 
+      {view === "plan" && (
+        <main className="wrap">
+          {!track ? (
+            <>
+              <div className="page-head">
+                <span className="eyebrow"><Target size={13} /> Study plan</span>
+                <h1>Choose your pace</h1>
+                <p>Pick a track that fits your time. It schedules the lessons day by day, tracks your XP and streak, and you can change it anytime.</p>
+              </div>
+              <div className="unit-grid">
+                {TRACKS.map((t) => (
+                  <button className="unit-card" key={t.id} onClick={() => choosePlan(t.id)}>
+                    <div className="unit-range"><span className="unit-num">{t.days} days</span><span className="unit-count">{t.scope} lessons</span></div>
+                    <h3>{t.name}</h3>
+                    <p>{t.blurb}</p>
+                    <p className="track-pace">{t.lessonsLabel} · {t.minutesPerDay}</p>
+                    <span className="unit-go">Start this plan <ArrowRight size={15} /></span>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (() => {
+            const cur = currentDay(plan, track);
+            const finished = isFinished(plan, track);
+            const done = completedCount(plan);
+            const pct = Math.round((done / track.days) * 100);
+            const todayIdx = finished ? [] : lessonIndicesForDay(track, cur);
+            return (
+              <>
+                <div className="page-head">
+                  <span className="eyebrow"><Target size={13} /> {track.name}</span>
+                  <h1>{finished ? "Plan complete — Glückwunsch!" : `Day ${cur} of ${track.days}`}</h1>
+                  <p>{finished ? "You’ve worked through every scheduled day. Keep your words fresh in Practice, or start a new plan." : `${todayIdx.length} lesson${todayIdx.length === 1 ? "" : "s"} today · about ${track.minutesPerDay}.`}</p>
+                </div>
+                <div className="plan-stats">
+                  <div className="pstat"><span className="pstat-ic"><Zap size={16} /></span><div><strong>{totalXp.toLocaleString()}</strong><span>XP</span></div></div>
+                  <div className="pstat"><span className="pstat-ic"><Check size={16} /></span><div><strong>{done}/{track.days}</strong><span>days done</span></div></div>
+                  <div className="pstat"><span className="pstat-ic"><Flame size={16} /></span><div><strong>{planStreak(plan)}</strong><span>day streak</span></div></div>
+                  <div className="pstat"><span className="pstat-ic"><Trophy size={16} /></span><div><strong>{pct}%</strong><span>complete</span></div></div>
+                </div>
+                <div className="mastery-bar" aria-hidden="true"><div className="seg known" style={{ width: `${pct}%` }} /></div>
+                {!finished && (
+                  <div className="today-card">
+                    <span className="eyebrow">Today’s lessons</span>
+                    <div className="today-lessons">
+                      {todayIdx.map((idx) => {
+                        const d = deckAtIndex(idx);
+                        if (!d) return null;
+                        return (
+                          <a key={idx} href={lessonUrl({ level: d.level, number: d.lesson })} target="_blank" rel="noreferrer">
+                            <span className={`lesson-level ${d.level.toLowerCase()}`}>{d.level}</span>
+                            <span className="today-title">Lektion {d.lesson} · {d.title}</span>
+                            <ArrowUpRight size={15} />
+                          </a>
+                        );
+                      })}
+                    </div>
+                    <div className="today-actions">
+                      <button className="btn btn-ghost" onClick={() => go("practice")}><Dumbbell size={16} /> Practice today’s words</button>
+                      <button className="btn btn-primary" onClick={() => completePlanDay(cur)}><Check size={16} /> Mark day complete</button>
+                    </div>
+                  </div>
+                )}
+                <button className="text-button plan-change" onClick={resetPlan}><RotateCcw size={14} /> Change plan</button>
+              </>
+            );
+          })()}
+        </main>
+      )}
+
       {view === "lessons" && (
         <main className="wrap">
           <div className="page-head">
@@ -240,7 +345,7 @@ export default function Home() {
             <h1>Practice &amp; drills</h1>
             <p>Flashcards, multiple choice, type-it, der/die/das, listening and match pairs — on the exact words from the lessons. Set how far you’ve studied and only those words appear.</p>
           </div>
-          <Practice focus={focus} onFocusHandled={() => setFocus(null)} />
+          <Practice focus={focus} onFocusHandled={() => setFocus(null)} planIndex={planIndex} />
         </main>
       )}
 
@@ -293,6 +398,14 @@ export default function Home() {
             <p><b>Contribute.</b> Everyone is welcome. Open an issue or pull request on <a href="https://github.com/azizjail2003/Deutsch-start" target="_blank" rel="noreferrer">GitHub</a>, or email <a href="mailto:jailabdelaziz@icloud.com">Abdelaziz Jail</a>.</p>
           </div>
         </main>
+      )}
+
+      {planToast && (
+        <div className="day-toast" role="status">
+          <span className="day-toast-msg"><Trophy size={18} /> Day {planToast.day} complete · +{planToast.xp} XP</span>
+          <button className="day-toast-undo" onClick={undoPlanDay}><RotateCcw size={14} /> Undo</button>
+          <button className="day-toast-x" aria-label="Dismiss" onClick={() => setPlanToast(null)}><X size={16} /></button>
+        </div>
       )}
 
       <footer>

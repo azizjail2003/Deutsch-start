@@ -170,6 +170,43 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .about-card a { color: var(--gold-soft); font-weight: 600; }
 @media (max-width: 700px) { footer .footer-grid { grid-template-columns: 1fr; gap: 18px; } }
 
+/* ---------------------------------------------------------------- Study plan */
+.plan-resume { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; margin: 24px 0 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 18px; background: color-mix(in srgb, var(--gold) 10%, var(--surface)); cursor: pointer; transition: border-color .15s ease, transform .12s ease; }
+.plan-resume:hover { border-color: var(--gold); transform: translateY(-1px); }
+.plan-resume-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--gold) 16%, var(--surface)); color: var(--gold-soft); flex-shrink: 0; }
+.plan-resume-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.plan-resume-text strong { font-weight: 600; }
+.plan-resume-text small { color: var(--muted); font-size: 13px; }
+.plan-resume > svg:last-child { margin-left: auto; color: var(--muted); flex-shrink: 0; }
+
+.track-pace { font-size: 13px !important; font-weight: 600; color: var(--gold-soft) !important; }
+
+.plan-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 4px 0 12px; }
+.plan-stats .pstat { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+.plan-stats .pstat-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--gold) 13%, var(--surface)); color: var(--gold-soft); flex-shrink: 0; }
+.plan-stats .pstat strong { display: block; font-family: var(--font-display), serif; font-weight: 600; font-size: 22px; line-height: 1; }
+.plan-stats .pstat span { font-size: 12px; color: var(--muted); }
+
+.today-card { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px 24px; box-shadow: var(--shadow-sm); }
+.today-card > .eyebrow { color: var(--muted); }
+.today-lessons { display: grid; gap: 8px; margin: 14px 0 18px; }
+.today-lessons a { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; background: var(--surface-2); transition: background .15s ease; }
+.today-lessons a:hover { background: color-mix(in srgb, var(--gold) 12%, var(--surface-2)); }
+.today-title { flex: 1; font-size: 14px; font-weight: 600; }
+.today-lessons a > svg { color: var(--muted); flex-shrink: 0; }
+.today-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.plan-change { margin-top: 18px; }
+
+.day-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; background: var(--ink); color: var(--surface); padding: 12px 16px; border-radius: 14px; box-shadow: var(--shadow); z-index: 70; animation: toast-in .25s ease; max-width: calc(100% - 28px); }
+.day-toast-msg { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+.day-toast-msg svg { color: var(--gold); }
+.day-toast-undo { display: inline-flex; align-items: center; gap: 5px; border: 1px solid color-mix(in srgb, var(--surface) 35%, transparent); background: transparent; color: var(--gold); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.day-toast-undo:hover { background: color-mix(in srgb, var(--surface) 14%, transparent); }
+.day-toast-x { border: 0; background: transparent; color: var(--surface); opacity: .7; cursor: pointer; display: grid; place-items: center; }
+.day-toast-x:hover { opacity: 1; }
+
+@media (max-width: 700px) { .plan-stats { grid-template-columns: repeat(2, 1fr); } }
+
 @media (max-width: 900px) {
   .wrap { width: min(100% - 36px, 1120px); }
   .site-header nav { display: none; }
