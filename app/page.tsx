@@ -511,6 +511,7 @@ export default function Home() {
             <span className="brand-mark"><Logo /></span>
             <div>
               <strong>Deutsch Start</strong>
+              <span className="brand-tagline">Dein Weg zur Sprache</span>
               <p><Languages size={13} style={{ verticalAlign: "middle", marginRight: 5 }} />Free &amp; open German A1–B1 · no account, no ads, no tracking.</p>
             </div>
           </div>
