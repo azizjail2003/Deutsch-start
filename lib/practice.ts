@@ -104,9 +104,9 @@ function normalizeStat(stat?: Partial<CardStat> & { streak?: number }): CardStat
 
 export function masteryOf(stat: CardStat | undefined): Mastery {
   const s = normalizeStat(stat);
-  if (s.seen === 0) return "new";
-  if (s.box >= KNOWN_BOX) return "known";
-  return "learning";
+  if (s.seen === 0) return "new";        // never practised
+  if (s.lastWrong) return "learning";    // missed it most recently
+  return "known";                        // answered correctly, currently recalling it
 }
 
 export function recordResult(state: PracticeState, id: string, correct: boolean): PracticeState {
