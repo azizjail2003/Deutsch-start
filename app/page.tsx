@@ -1,8 +1,9 @@
 "use client";
 
 import {
-  ArrowRight, ArrowUpRight, BookOpen, Check, Dumbbell, Flame, GraduationCap, Headphones, Languages,
-  Library, MapPin, Mic, Moon, PenLine, Play, RotateCcw, Search, Sparkles, Sun, Target, Trophy, X, Zap,
+  ArrowRight, ArrowUpRight, BookOpen, Check, ChevronLeft, ChevronRight, Clock, Dumbbell, Flame,
+  GraduationCap, Headphones, Languages, Library, MapPin, Mic, Moon, PenLine, Play, RotateCcw, Search,
+  Sparkles, Sun, Target, Trophy, X, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -17,11 +18,25 @@ import {
 } from "@/lib/plan";
 import Practice from "@/components/Practice";
 import SoundControl from "@/components/SoundControl";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const skillIcon: Record<SkillId, React.ComponentType<{ size?: number }>> = {
   grammar: BookOpen, vocabulary: Library, listening: Headphones,
   speaking: Mic, writing: PenLine, exam: GraduationCap,
 };
+
+function Countdown() {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+  const midnight = new Date();
+  midnight.setHours(24, 0, 0, 0);
+  const ms = Math.max(0, midnight.getTime() - now);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return <strong className="countdown">{pad(Math.floor(ms / 3600000))}:{pad(Math.floor((ms % 3600000) / 60000))}:{pad(Math.floor((ms % 60000) / 1000))}</strong>;
+}
 
 type View = "home" | "plan" | "lessons" | "practice" | "resources";
 const NAV: [View, string][] = [["home", "Home"], ["plan", "Plan"], ["lessons", "Lessons"], ["practice", "Practice"], ["resources", "Resources"]];
@@ -37,6 +52,8 @@ export default function Home() {
   const [plan, setPlan] = useState<PlanState>(initialPlanState);
   const [hydrated, setHydrated] = useState(false);
   const [planToast, setPlanToast] = useState<{ day: number; xp: number } | null>(null);
+  const [viewedDay, setViewedDay] = useState<number | null>(null);
+  const [confirm, setConfirm] = useState<{ title: string; message: string; confirmLabel: string; danger: boolean; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
     setDark(localStorage.getItem("deutsch-start-theme") === "dark");
@@ -52,7 +69,13 @@ export default function Home() {
   const totalXp = planXp(plan) + (hydrated ? getPracticeXp() : 0);
 
   const choosePlan = (id: string) => { const t = trackById(id); if (t) setPlan(startTrack(t)); };
-  const resetPlan = () => { if (window.confirm("Change your plan? Your day progress for this plan will be cleared.")) setPlan(initialPlanState()); };
+  const resetPlan = () => setConfirm({
+    title: "Change your plan?",
+    message: "Your day-by-day progress for this plan will be cleared. Your saved vocabulary practice and its XP aren’t affected.",
+    confirmLabel: "Change plan",
+    danger: true,
+    onConfirm: () => { setPlan(initialPlanState()); setViewedDay(null); setConfirm(null); },
+  });
   const completePlanDay = (d: number) => {
     setPlan((p) => markDay(p, d));
     playEffect("achievement");
@@ -234,13 +257,19 @@ export default function Home() {
             const finished = isFinished(plan, track);
             const done = completedCount(plan);
             const pct = Math.round((done / track.days) * 100);
-            const todayIdx = finished ? [] : lessonIndicesForDay(track, cur);
+            const todayCount = finished ? 0 : lessonIndicesForDay(track, cur).length;
+            const vDay = Math.min(Math.max(viewedDay ?? Math.min(cur, track.days), 1), track.days);
+            const vLessons = lessonIndicesForDay(track, vDay);
+            const vCompleted = !!plan.completions[vDay];
+            const isCurrent = vDay === cur && !finished;
+            const completedToday = Object.values(plan.completions).includes(new Date().toISOString().slice(0, 10));
+            const vStatus = vCompleted ? "Completed" : isCurrent ? "Today" : vDay > cur ? "Upcoming" : "Day";
             return (
               <>
                 <div className="page-head">
                   <span className="eyebrow"><Target size={13} /> {track.name}</span>
                   <h1>{finished ? "Plan complete — Glückwunsch!" : `Day ${cur} of ${track.days}`}</h1>
-                  <p>{finished ? "You’ve worked through every scheduled day. Keep your words fresh in Practice, or start a new plan." : `${todayIdx.length} lesson${todayIdx.length === 1 ? "" : "s"} today · about ${track.minutesPerDay}.`}</p>
+                  <p>{finished ? "You’ve worked through every scheduled day. Keep your words fresh in Practice, or start a new plan." : `${todayCount} lesson${todayCount === 1 ? "" : "s"} today · about ${track.minutesPerDay}.`}</p>
                 </div>
                 <div className="plan-stats">
                   <div className="pstat"><span className="pstat-ic"><Zap size={16} /></span><div><strong>{totalXp.toLocaleString()}</strong><span>XP</span></div></div>
@@ -249,28 +278,46 @@ export default function Home() {
                   <div className="pstat"><span className="pstat-ic"><Trophy size={16} /></span><div><strong>{pct}%</strong><span>complete</span></div></div>
                 </div>
                 <div className="mastery-bar" aria-hidden="true"><div className="seg known" style={{ width: `${pct}%` }} /></div>
-                {!finished && (
-                  <div className="today-card">
-                    <span className="eyebrow">Today’s lessons</span>
-                    <div className="today-lessons">
-                      {todayIdx.map((idx) => {
-                        const d = deckAtIndex(idx);
-                        if (!d) return null;
-                        return (
-                          <a key={idx} href={lessonUrl({ level: d.level, number: d.lesson })} target="_blank" rel="noreferrer">
-                            <span className={`lesson-level ${d.level.toLowerCase()}`}>{d.level}</span>
-                            <span className="today-title">Lektion {d.lesson} · {d.title}</span>
-                            <ArrowUpRight size={15} />
-                          </a>
-                        );
-                      })}
+
+                <div className="today-card">
+                  <div className="day-nav">
+                    <button className="day-nav-btn" disabled={vDay <= 1} onClick={() => setViewedDay(vDay - 1)} aria-label="Previous day"><ChevronLeft size={18} /></button>
+                    <div className="day-nav-label">
+                      <span className="eyebrow">{vStatus} · Day {vDay} of {track.days}</span>
+                      <strong>{vLessons.length ? `${vLessons.length} lesson${vLessons.length === 1 ? "" : "s"} · ~${track.minutesPerDay}` : "Lighter day — review your due words"}</strong>
                     </div>
-                    <div className="today-actions">
-                      <button className="btn btn-ghost" onClick={() => go("practice")}><Dumbbell size={16} /> Practice today’s words</button>
-                      <button className="btn btn-primary" onClick={() => completePlanDay(cur)}><Check size={16} /> Mark day complete</button>
-                    </div>
+                    <button className="day-nav-btn" disabled={vDay >= track.days} onClick={() => setViewedDay(vDay + 1)} aria-label="Next day"><ChevronRight size={18} /></button>
                   </div>
-                )}
+                  <div className="today-lessons">
+                    {vLessons.map((idx) => {
+                      const d = deckAtIndex(idx);
+                      if (!d) return null;
+                      return (
+                        <a key={idx} href={lessonUrl({ level: d.level, number: d.lesson })} target="_blank" rel="noreferrer">
+                          <span className={`lesson-level ${d.level.toLowerCase()}`}>{d.level}</span>
+                          <span className="today-title">Lektion {d.lesson} · {d.title}</span>
+                          <ArrowUpRight size={15} />
+                        </a>
+                      );
+                    })}
+                  </div>
+                  {isCurrent ? (
+                    completedToday ? (
+                      <div className="next-day-countdown"><Clock size={16} /> Done for today — next day in <Countdown /></div>
+                    ) : (
+                      <div className="today-actions">
+                        <button className="btn btn-ghost" onClick={() => go("practice")}><Dumbbell size={16} /> Practice today’s words</button>
+                        <button className="btn btn-primary" onClick={() => completePlanDay(cur)}><Check size={16} /> Mark day complete</button>
+                      </div>
+                    )
+                  ) : (
+                    <div className="day-status">{vCompleted ? <><Check size={15} /> Completed</> : vDay > cur ? "Upcoming — finish earlier days first" : "Not completed yet"}</div>
+                  )}
+                  {viewedDay != null && viewedDay !== cur && (
+                    <button className="text-button day-back" onClick={() => setViewedDay(null)}>← Back to today</button>
+                  )}
+                </div>
+
                 <button className="text-button plan-change" onClick={resetPlan}><RotateCcw size={14} /> Change plan</button>
               </>
             );
@@ -407,6 +454,16 @@ export default function Home() {
           <button className="day-toast-x" aria-label="Dismiss" onClick={() => setPlanToast(null)}><X size={16} /></button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!confirm}
+        title={confirm?.title ?? ""}
+        message={confirm?.message ?? ""}
+        confirmLabel={confirm?.confirmLabel}
+        danger={confirm?.danger}
+        onConfirm={() => confirm?.onConfirm()}
+        onCancel={() => setConfirm(null)}
+      />
 
       <footer>
         <div className="wrap footer-grid">
