@@ -1,100 +1,162 @@
-# Deutsch Start
+<div align="center">
 
-**A free, open home base for learning German from A1 to B1.**
+# 🇩🇪 Deutsch Start
 
-Deutsch Start maps the full **142-lesson** German curriculum (A1 → A2 → B1) into
-one clear path, lets you **practise the exact words from each lesson** with
-spaced-repetition flashcards, and points you to the best free resources for every
-skill — grammar, vocabulary, listening, speaking, writing and exam prep.
+### A free, open home base for learning German from **A1 → B1** 🚀
 
-No account. No ads. No tracking. Everything runs in your browser.
+One clear path through the whole curriculum, real spaced-repetition practice,
+and the best free resources for every skill — no account, no ads, no tracking.
 
-## Why I built this
+[![Live Demo](https://img.shields.io/badge/▶_Live_Demo-deutsch--start.vercel.app-22c55e?logo=vercel&logoColor=white)](https://deutsch-start.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](./LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-App_Router-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
+[![Privacy: on-device](https://img.shields.io/badge/Privacy-100%25_on--device-blue.svg)](#-privacy--security)
+
+</div>
+
+---
+
+## 📖 What it is
+
+**Deutsch Start** maps the full **142-lesson** German curriculum (A1 → A2 → B1)
+into one clear path, lets you **practise the exact words from each lesson** with
+spaced-repetition flashcards, and points you to the **best free resources** for
+every skill — grammar, vocabulary, listening, speaking, writing and exam prep.
+
+> 🔒 **No account. No ads. No tracking.** Everything runs in your browser.
+
+🔗 **Live site:** **[deutsch-start.vercel.app](https://deutsch-start.vercel.app)**
+
+---
+
+## 💡 Why I built it
 
 Good German material is scattered across a dozen courses, playlists and apps, and
 most "free" sites are buried in ads or locked behind sign-ups. I wanted **one
 calm, well-organised place**: a clear lesson path, a way to actually *practise and
 retain* the words, and honest links to the best free resources — nothing more.
-Deutsch Start is that place, shared openly so it can help other learners too.
 
-## Features
+Deutsch Start is that place, shared openly so it can help other learners too. ❤️
 
-- **142-lesson roadmap** across three levels (A1 · 65, A2 · 50, B1 · 27) with the
-  grammar focus and vocabulary of each lesson.
-- **Lesson explorer** with live search and level filtering; every lesson links to
-  its full page and lets you practise its words in one tap.
-- **Vocabulary practice** — more than 1,000 flashcards across 142 decks, in eight
-  modes: flashcards, multiple choice, type-it, fill-the-gap (cloze), dictation,
-  der/die/das, listening and match pairs.
-- **Spaced repetition** (Leitner system) with a "review due" queue, mastery
-  tracking, practice XP, a day streak and achievement badges.
-- **Spoken German audio** for every card (online text-to-speech) plus generated
-  sound effects, with a volume / mute control.
-- Light / dark mode, fully responsive, keyboard-accessible, reduced-motion aware.
+---
 
-## Tech
+## ✨ Features
 
-Next.js (App Router) · React · TypeScript. No backend, no database — all progress
-is saved in your browser's local storage.
+| | |
+|---|---|
+| 🗺️ **142-lesson roadmap** | Three levels (A1 · 65, A2 · 50, B1 · 27), each with its grammar focus and vocabulary. |
+| 🔍 **Lesson explorer** | Live search + level filtering; jump from any lesson straight into practising its words. |
+| 🃏 **Vocabulary practice** | 1,000+ flashcards across 142 decks, in **8 modes**: flashcards, multiple choice, type-it, cloze, dictation, der/die/das, listening and match pairs. |
+| 🧠 **Spaced repetition** | Leitner system with a "review due" queue, mastery tracking, XP, a day streak and achievement badges. |
+| 🔊 **Spoken audio** | Text-to-speech pronunciation for every card, plus sound effects with volume / mute control. |
+| 🎨 **Made yours** | Light / dark mode, custom accent colour, adjustable text size — all in a Settings tab. |
+| 📊 **Progress dashboard** | XP, streak, mastery bars, an activity heatmap and a focused "review your weak words" session. |
+| ♿ **Accessible** | Fully responsive, keyboard-first practice, and reduced-motion aware. |
+| 💾 **Your data, exportable** | Back up and restore all progress as a single file — it never leaves your device. |
 
-## Run locally
+---
+
+## 🔐 Privacy & security
+
+This is a **fully client-side** app — there's no backend, no database and no
+accounts, so there's nothing to breach on a server.
+
+- 🧳 **All your progress** (plan, practice stats, settings) lives in your browser's
+  `localStorage` and **never leaves your device**, except a backup file *you*
+  choose to export.
+- 🗣️ The only outbound call at runtime is sending the word being spoken to a public
+  text-to-speech voice so it can return the audio.
+- 📈 Visitor counts use **Vercel Web Analytics** — **cookieless**, with no
+  profiling or personal data.
+
+Found a vulnerability? Please report it privately — see **[SECURITY.md](./SECURITY.md)**.
+
+---
+
+## 🛠️ Tech stack
+
+**Next.js** (App Router) · **React** · **TypeScript** · **pnpm**
+No backend, no database — all progress is saved in the browser's local storage.
+
+---
+
+## 🚀 Run locally
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:3000
+pnpm dev          # ▶ http://localhost:3000
 ```
 
-Verify before pushing:
+Verify before pushing (CI runs the exact same checks on every PR):
 
 ```bash
-pnpm typecheck
-pnpm build
+pnpm typecheck    # ✅ types
+pnpm build        # 📦 production build
 ```
 
-## Deploy
+> Requires **Node 22** and **pnpm 11** (see `package.json`).
 
-Import the repository into [Vercel](https://vercel.com) (framework auto-detected
-as Next.js). No environment variables or backend services are required.
+---
 
-## Sources & attribution
+## ☁️ Deploy
 
-- **Lessons.** The lesson sequence and grammar/vocabulary topics follow the
-  [Learn German Original](https://learngermanoriginal.com/) A1, A2 and B1 courses.
-- **Resources.** Listening, speaking, writing and exam resources — DW *Nicos
-  Weg*, Easy German, YouGlish, Vocaroo, LanguageTool, Duolingo and the
-  Goethe-Institut — are independently curated and link to their official pages.
-- **Flashcards.** The decks are written to match each lesson's topic.
-- **Audio.** Pronunciation is generated by an online text-to-speech service.
+Import the repository into **[Vercel](https://vercel.com)** — the framework is
+auto-detected as Next.js. **No environment variables or backend services are
+required.** That's it. 🎉
 
-## Disclaimer
+---
 
-This is an independent, non-commercial educational project. It is **not affiliated
-with or endorsed by** any linked provider, and all trademarks belong to their
-respective owners. The content is provided **as is, without warranty** — always
-verify important details with the original sources.
+## 🤝 Contributing
 
-## Contributing
+**Everyone is welcome** — beginners and experts alike! 🙌
 
-**Everyone is welcome to contribute** — beginners and experts alike:
-
-- Report a mistake (a wrong translation, article or example) by opening an
-  **issue**.
-- Improve lessons, flashcards, resources, accessibility or design with a
-  **pull request**.
-- Suggest features or new resources.
+- 🐛 **Spot a mistake?** (a wrong translation, article or example) → open an **issue**.
+- 🔧 **Improve** lessons, flashcards, resources, accessibility or design → open a **pull request**.
+- 💭 **Have an idea?** → suggest a feature or a new resource.
 
 Please keep changes accurate and grounded in real sources, and run
-`pnpm typecheck && pnpm build` before opening a PR.
+`pnpm typecheck && pnpm build` before opening a PR. Full guidelines in
+**[CONTRIBUTING.md](./CONTRIBUTING.md)**.
 
-## Author
+---
+
+## 📚 Sources & attribution
+
+- 🗂️ **Lessons** — the sequence and grammar/vocabulary topics follow the
+  [Learn German Original](https://learngermanoriginal.com/) A1, A2 and B1 courses.
+- 🌐 **Resources** — DW *Nicos Weg*, Easy German, YouGlish, Vocaroo, LanguageTool,
+  Duolingo and the Goethe-Institut are independently curated and link to their
+  official pages.
+- 🃏 **Flashcards** — the decks are written to match each lesson's topic.
+- 🔊 **Audio** — pronunciation is generated by an online text-to-speech service.
+
+> ⚠️ **Disclaimer.** This is an independent, non-commercial educational project.
+> It is **not affiliated with or endorsed by** any linked provider, and all
+> trademarks belong to their respective owners. Content is provided **as is,
+> without warranty** — always verify important details with the original sources.
+
+---
+
+## 👤 Author
 
 Built and maintained by **Abdelaziz Jail**.
 
-- Email: <jailabdelaziz@icloud.com>
-- GitHub: https://github.com/azizjail2003
+[![Email](https://img.shields.io/badge/Email-jailabdelaziz@icloud.com-d97706?logo=maildotru&logoColor=white)](mailto:jailabdelaziz@icloud.com)
+[![GitHub](https://img.shields.io/badge/GitHub-azizjail2003-181717?logo=github&logoColor=white)](https://github.com/azizjail2003)
 
-## License
+---
 
-[MIT](./LICENSE) © 2026 Abdelaziz Jail. The application code is MIT-licensed.
+## 📄 License
+
+[**MIT**](./LICENSE) © 2026 Abdelaziz Jail — the application code is MIT-licensed.
+
 Lesson content and linked resources reference third-party materials owned by
 their respective providers (see *Sources & attribution* above).
+
+<div align="center">
+
+⭐ **If Deutsch Start helps your German, consider starring the repo — it helps other learners find it.** ⭐
+
+</div>
