@@ -196,6 +196,19 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .today-lessons a > svg { color: var(--muted); flex-shrink: 0; }
 .today-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .plan-change { margin-top: 18px; }
+.day-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.day-nav-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: grid; place-items: center; flex-shrink: 0; transition: border-color .15s ease; }
+.day-nav-btn:hover:not(:disabled) { border-color: var(--gold); }
+.day-nav-btn:disabled { opacity: .4; cursor: default; }
+.day-nav-label { flex: 1; text-align: center; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.day-nav-label .eyebrow { color: var(--gold-soft); }
+.day-nav-label strong { font-weight: 600; font-size: 15px; }
+.next-day-countdown { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; color: var(--muted); background: var(--surface-2); border-radius: 12px; padding: 12px 16px; }
+.next-day-countdown svg { color: var(--gold-soft); }
+.countdown { font-variant-numeric: tabular-nums; color: var(--ink); font-size: 16px; }
+.day-status { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; color: var(--muted); }
+.day-status svg { color: var(--gold-soft); }
+.day-back { margin-top: 14px; }
 
 .day-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; background: var(--ink); color: var(--surface); padding: 12px 16px; border-radius: 14px; box-shadow: var(--shadow); z-index: 70; animation: toast-in .25s ease; max-width: calc(100% - 28px); }
 .day-toast-msg { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
@@ -256,6 +269,37 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 999px; border: 1px dashed var(--line); color: var(--muted); background: var(--surface); opacity: .7; }
 .badge.earned { border-style: solid; border-color: var(--gold); color: var(--gold-soft); background: color-mix(in srgb, var(--gold) 12%, var(--surface)); opacity: 1; }
 .cloze-sentence { font-size: clamp(20px, 3.5vw, 26px) !important; line-height: 1.4 !important; }
+
+.mix-toggle { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 14px; cursor: pointer; transition: border-color .15s ease; }
+.mix-toggle:hover { border-color: var(--gold); }
+.mix-builder { margin-top: 12px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow-sm); }
+.mix-section { display: flex; flex-direction: column; gap: 10px; }
+.mix-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mix-chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 13px; font-weight: 600; font-size: 13px; cursor: pointer; transition: border-color .15s ease, background .15s ease, color .15s ease; }
+.mix-chip:hover { border-color: var(--gold); }
+.mix-chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.mix-note { margin: 0; font-size: 13px; color: var(--muted); }
+.mix-start { align-self: flex-start; }
+
+/* Confirm dialog */
+.confirm-overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--ink) 45%, transparent); backdrop-filter: blur(3px); animation: confirm-fade .15s ease; }
+.confirm-panel { position: relative; width: min(420px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 30px 26px 22px; box-shadow: var(--shadow); text-align: center; animation: confirm-pop .2s ease; }
+.confirm-x { position: absolute; top: 12px; right: 12px; border: 0; background: transparent; color: var(--muted); cursor: pointer; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; }
+.confirm-x:hover { background: var(--surface-2); color: var(--ink); }
+.confirm-icon { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 14px; background: color-mix(in srgb, var(--gold) 14%, var(--surface)); color: var(--gold-soft); }
+.confirm-icon.danger { background: color-mix(in srgb, var(--red) 14%, var(--surface)); color: var(--red); }
+.confirm-panel h3 { font-family: var(--font-display), serif; font-weight: 600; font-size: 22px; line-height: 1.2; margin: 0 0 8px; }
+.confirm-panel p { margin: 0 0 22px; color: var(--muted); line-height: 1.55; font-size: 15px; }
+.confirm-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.confirm-cancel, .confirm-ok { min-height: 44px; border-radius: 12px; padding: 0 18px; font-weight: 700; cursor: pointer; border: 1px solid var(--line); }
+.confirm-cancel { background: var(--surface); color: var(--ink); }
+.confirm-cancel:hover { background: var(--surface-2); }
+.confirm-ok { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.confirm-ok.danger { background: var(--red); border-color: var(--red); color: #fff; }
+.confirm-ok.danger:hover { filter: brightness(.94); }
+@keyframes confirm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes confirm-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .confirm-overlay, .confirm-panel { animation: none; } }
 
 .lesson-control { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; margin-bottom: 18px; box-shadow: var(--shadow-sm); }
 .lesson-control-head { display: flex; align-items: center; gap: 9px; font-size: 15px; margin-bottom: 12px; flex-wrap: wrap; }

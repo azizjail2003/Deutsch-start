@@ -27,6 +27,8 @@ const MODES: { id: Mode; label: string; blurb: string; icon: typeof Layers }[] =
 
 const SESSION_SIZE = 12;
 const MATCH_GROUP = 5;
+// Modes that can be mixed card-by-card (match is a whole-screen game, excluded).
+const MIXABLE: Mode[] = ["flashcards", "choice", "type", "cloze", "dictation", "articles", "listen"];
 
 function normalize(value: string): string {
   return value
@@ -424,6 +426,10 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCards, setWrongCards] = useState<FlashcardWithMeta[]>([]);
   const [done, setDone] = useState(false);
+  const [sessionModes, setSessionModes] = useState<Mode[] | null>(null);
+  const [mixOpen, setMixOpen] = useState(false);
+  const [mixSelected, setMixSelected] = useState<Set<Mode>>(() => new Set<Mode>(MIXABLE));
+  const [mixCount, setMixCount] = useState(12);
   const [lessonFilter, setLessonFilter] = useState<{ level: GermanLevel; lesson: number } | null>(null);
   const [toasts, setToasts] = useState<{ id: number; text: string }[]>([]);
   const streakRef = useRef(0);
@@ -527,7 +533,28 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
       : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !reviewOnly, reviewOnly);
     const cards = m === "match" ? shuffleArray(picked) : picked;
     if (!cards.length) return;
-    setMode(m); setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false);
+    setSessionModes(null); setMode(m); setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false);
+  };
+
+  const mixModeValid = (m: Mode, c: FlashcardWithMeta) => {
+    if (m === "articles") return articleOf(c) != null;
+    if (m === "cloze") return clozeFor(c) != null;
+    return true;
+  };
+  const toggleMix = (m: Mode) => setMixSelected((s) => { const n = new Set(s); if (n.has(m)) n.delete(m); else n.add(m); return n; });
+  const startMix = () => {
+    primeSpeech();
+    streakRef.current = 0;
+    const cards = selectSession(scopedPool, state.stats, mixCount, weakOnly);
+    if (!cards.length || mixSelected.size === 0) return;
+    const chosen = [...mixSelected];
+    const modes = cards.map((c) => {
+      const valid = chosen.filter((m) => mixModeValid(m, c));
+      const poolM = valid.length ? valid : (["flashcards"] as Mode[]);
+      return poolM[Math.floor(Math.random() * poolM.length)];
+    });
+    setSessionModes(modes); setMode("flashcards");
+    setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false); setMixOpen(false);
   };
 
   const handleResult = (id: string, correct: boolean) => {
@@ -537,7 +564,8 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
       const card = session?.find((c) => c.id === id);
       if (card) setWrongCards((w) => (w.some((x) => x.id === id) ? w : [...w, card]));
     }
-    if (mode !== "match") {
+    const activeMode = sessionModes ? sessionModes[index] : mode;
+    if (activeMode !== "match") {
       playEffect(correct ? "correct" : "wrong");
       if (correct) {
         streakRef.current += 1;
@@ -554,7 +582,7 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
     else setDone(true);
   };
 
-  const exit = () => { setSession(null); setMode(null); setDone(false); };
+  const exit = () => { setSession(null); setMode(null); setDone(false); setSessionModes(null); };
 
   const setUpTo = (value: number | null) => setState((s) => ({ ...s, studiedUpTo: value }));
 
@@ -577,7 +605,7 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
                   <RotateCcw size={17} /> Review the {wrongCards.length} missed
                 </button>
               )}
-              <button className="btn btn-ghost" onClick={() => startSession(mode)}>New set <ArrowRight size={16} /></button>
+              <button className="btn btn-ghost" onClick={() => (sessionModes ? startMix() : startSession(mode))}>New set <ArrowRight size={16} /></button>
               <button className="text-button" onClick={exit}><ChevronLeft size={15} /> Back to practice</button>
             </div>
           </div>
@@ -586,24 +614,25 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
       );
     }
 
-    const modeMeta = MODES.find((m) => m.id === mode)!;
+    const activeMode: Mode = sessionModes ? sessionModes[index] : mode;
+    const sessionTitle = sessionModes ? "Mixed practice" : MODES.find((m) => m.id === mode)!.label;
     return (
       <div className="practice-root focus">
         <div className="session-bar">
           <button className="back-button" onClick={exit}><ChevronLeft size={18} /> Exit</button>
-          <span className="session-title">{modeMeta.label}</span>
-          {mode !== "match" && <span className="session-count">{index + 1} / {total}</span>}
+          <span className="session-title">{sessionTitle}</span>
+          {activeMode !== "match" && <span className="session-count">{index + 1} / {total}</span>}
         </div>
-        {mode !== "match" && (
+        {activeMode !== "match" && (
           <div className="session-progress"><div style={{ width: `${(index / total) * 100}%` }} /></div>
         )}
-        {mode === "match" ? (
+        {activeMode === "match" ? (
           <MatchGame cards={session} onResult={handleResult} onDone={() => setDone(true)} />
         ) : (
           <CardExercise
             key={session[index].id}
             card={session[index]}
-            mode={mode}
+            mode={activeMode}
             pool={allUnlocked}
             onResult={(correct) => handleResult(session[index].id, correct)}
             onNext={next}
@@ -687,6 +716,33 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
           );
         })}
       </div>
+
+      <button className="mix-toggle" onClick={() => setMixOpen((o) => !o)} aria-expanded={mixOpen}>
+        <Shuffle size={16} /> {mixOpen ? "Hide custom mix" : "Build a custom mix"}
+      </button>
+      {mixOpen && (
+        <div className="mix-builder">
+          <div className="mix-section">
+            <span className="scope-label">Include exercises</span>
+            <div className="mix-chips">
+              {MIXABLE.map((m) => {
+                const meta = MODES.find((x) => x.id === m)!;
+                return <button key={m} className={`mix-chip ${mixSelected.has(m) ? "on" : ""}`} onClick={() => toggleMix(m)}>{meta.label}</button>;
+              })}
+            </div>
+          </div>
+          <div className="mix-section">
+            <span className="scope-label">Questions</span>
+            <div className="scope-chips">
+              {[6, 12, 20, 30].map((n) => <button key={n} className={mixCount === n ? "active" : ""} onClick={() => setMixCount(n)}>{n}</button>)}
+            </div>
+          </div>
+          <p className="mix-note">Uses your current level &amp; “focus on weak words” filters above.</p>
+          <button className="btn btn-primary mix-start" disabled={mixSelected.size === 0 || scopedPool.length === 0} onClick={startMix}>
+            <Shuffle size={16} /> Start mix
+          </button>
+        </div>
+      )}
 
       <div className="badge-row">
         {BADGES.map((b) => {
