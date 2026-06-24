@@ -7,7 +7,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { allCards, articleOf, clozeFor, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
 import {
-  addSessionBonus, BADGES, deckAtIndex, distractorsFor, dueReviewCount, earnedBadgeIds, effectiveIndex,
+  addSessionBonus, BADGES, deckAtIndex, distractorsFor, dueReviewCount, earnedBadgeIds,
   levelsIn, loadPracticeState, masteryOf, playEffect, practiceStreak, PracticeState, primeSpeech,
   recordResult, savePracticeState, selectSession, speakGerman, summarize, unlockedCards,
 } from "@/lib/practice";
@@ -410,9 +410,10 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
 // ---------------------------------------------------------------------------
 // Practice (embedded as a page section)
 // ---------------------------------------------------------------------------
-export default function Practice({ focus, onFocusHandled }: {
+export default function Practice({ focus, onFocusHandled, planIndex }: {
   focus?: { level: GermanLevel; lesson: number } | null;
   onFocusHandled?: () => void;
+  planIndex?: number;
 }) {
   const [state, setState] = useState<PracticeState>(loadPracticeState);
   const [scope, setScope] = useState<"all" | GermanLevel>("all");
@@ -463,8 +464,12 @@ export default function Practice({ focus, onFocusHandled }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focus]);
 
-  const upTo = effectiveIndex(state);
-  const all = state.studiedUpTo == null;
+  // Manual slider overrides; otherwise follow the active study plan (if any);
+  // otherwise the whole course.
+  const upTo = state.studiedUpTo != null
+    ? Math.min(Math.max(state.studiedUpTo, 0), totalDecks)
+    : (planIndex ?? totalDecks);
+  const all = state.studiedUpTo == null && planIndex == null;
   const allUnlocked = useMemo(() => unlockedCards(upTo), [upTo]);
   const unlockedLevels = useMemo(() => levelsIn(allUnlocked), [allUnlocked]);
   const scopedPool = useMemo(() => {
