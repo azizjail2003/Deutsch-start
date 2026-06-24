@@ -1,4 +1,4 @@
-import { deckAtIndex, practiceStreak, totalDecks } from "@/lib/practice";
+import { deckAtIndex, totalDecks } from "@/lib/practice";
 
 export type Track = {
   id: string;
@@ -20,7 +20,7 @@ export function trackById(id: string | null): Track | null {
   return TRACKS.find((t) => t.id === id) ?? null;
 }
 
-/** Lessons that should be completed by the end of `day` (even Bresenham spread). */
+/** Lessons completed by the end of `day` (even Bresenham spread). */
 export function cumulativeByDay(track: Track, day: number): number {
   if (day <= 0) return 0;
   if (day >= track.days) return track.scope;
@@ -40,10 +40,25 @@ export type PlanState = {
   trackId: string | null;
   startDate: string | null;
   completions: Record<number, string>; // plan day -> ISO date completed
+  anchorDate: string | null; // streak/cadence anchor (resets on a missed day)
+  anchorDone: number; // completed count at the anchor
 };
 
 const PLAN_KEY = "deutsch-start-plan-v1";
-export const initialPlanState = (): PlanState => ({ trackId: null, startDate: null, completions: {} });
+const DAY_MS = 86400000;
+
+/** Local calendar date (YYYY-MM-DD), so it lines up with the midnight countdown. */
+export function todayISO(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function diffDays(aISO: string, bISO: string): number {
+  const a = new Date(`${aISO}T00:00:00`).getTime();
+  const b = new Date(`${bISO}T00:00:00`).getTime();
+  return Math.round((b - a) / DAY_MS);
+}
+
+export const initialPlanState = (): PlanState => ({ trackId: null, startDate: null, completions: {}, anchorDate: null, anchorDone: 0 });
 
 export function loadPlanState(): PlanState {
   if (typeof window === "undefined") return initialPlanState();
@@ -51,7 +66,14 @@ export function loadPlanState(): PlanState {
     const raw = window.localStorage.getItem(PLAN_KEY);
     if (!raw) return initialPlanState();
     const p = JSON.parse(raw) as Partial<PlanState>;
-    return { trackId: p.trackId ?? null, startDate: p.startDate ?? null, completions: p.completions ?? {} };
+    const completions = p.completions ?? {};
+    return {
+      trackId: p.trackId ?? null,
+      startDate: p.startDate ?? null,
+      completions,
+      anchorDate: p.anchorDate ?? p.startDate ?? null,
+      anchorDone: p.anchorDone ?? Object.keys(completions).length, // migrate: assume caught up
+    };
   } catch {
     return initialPlanState();
   }
@@ -70,11 +92,8 @@ export function completedCount(plan: PlanState): number {
 export function planXp(plan: PlanState): number {
   return completedCount(plan) * XP_PER_DAY;
 }
-export function planStreak(plan: PlanState): number {
-  return practiceStreak(Object.values(plan.completions));
-}
 
-/** First day not yet completed (or days+1 once finished). */
+/** Next lesson day to do (first not completed), or days+1 once finished. */
 export function currentDay(plan: PlanState, track: Track): number {
   for (let d = 1; d <= track.days; d++) if (!plan.completions[d]) return d;
   return track.days + 1;
@@ -83,22 +102,54 @@ export function isFinished(plan: PlanState, track: Track): boolean {
   return currentDay(plan, track) > track.days;
 }
 
-/** Highest curriculum index the learner may practise under the plan (today inclusive). */
+/** Highest curriculum index the learner may practise under the plan (current day inclusive). */
 export function planUnlockedIndex(plan: PlanState, track: Track): number {
   const d = Math.min(currentDay(plan, track), track.days);
   return cumulativeByDay(track, d);
 }
 
+export type PlanStatus = {
+  finished: boolean;
+  completed: number;
+  currentDay: number;
+  due: boolean; // a day is owed today (deadline = midnight)
+  covered: boolean; // done/banked for today — rest
+  behind: boolean; // a midnight passed uncompleted — streak should reset
+  daysAhead: number; // banked buffer
+  streak: number; // consecutive calendar days kept "covered"
+};
+
+export function planStatus(plan: PlanState, track: Track): PlanStatus {
+  const completed = completedCount(plan);
+  const finished = completed >= track.days;
+  const cur = Math.min(completed + 1, track.days);
+  const anchor = plan.anchorDate ?? plan.startDate ?? todayISO();
+  const daysSinceAnchor = Math.max(0, diffDays(anchor, todayISO()));
+  const progress = completed - (plan.anchorDone ?? 0);
+  const credit = progress - daysSinceAnchor - 1; // >=0 covered/ahead, -1 due today, <=-2 behind
+  const due = !finished && credit < 0;
+  const covered = finished || credit >= 0;
+  const behind = !finished && credit <= -2;
+  const daysAhead = Math.max(0, credit);
+  const streak = behind ? 0 : credit >= 0 || finished ? daysSinceAnchor + 1 : daysSinceAnchor;
+  return { finished, completed, currentDay: cur, due, covered, behind, daysAhead, streak };
+}
+
 export function startTrack(track: Track): PlanState {
-  return { trackId: track.id, startDate: new Date().toISOString().slice(0, 10), completions: {} };
+  const today = todayISO();
+  return { trackId: track.id, startDate: today, completions: {}, anchorDate: today, anchorDone: 0 };
 }
 export function markDay(plan: PlanState, day: number): PlanState {
-  return { ...plan, completions: { ...plan.completions, [day]: new Date().toISOString().slice(0, 10) } };
+  return { ...plan, completions: { ...plan.completions, [day]: todayISO() } };
 }
 export function unmarkDay(plan: PlanState, day: number): PlanState {
   const completions = { ...plan.completions };
   delete completions[day];
   return { ...plan, completions };
+}
+/** Called when a day was missed: roll the cadence anchor to today (streak restarts). */
+export function resetAnchorToToday(plan: PlanState): PlanState {
+  return { ...plan, anchorDate: todayISO(), anchorDone: completedCount(plan) };
 }
 
 export { deckAtIndex };

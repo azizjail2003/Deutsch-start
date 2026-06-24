@@ -12,13 +12,14 @@ import {
 } from "@/data/german";
 import { getPracticeXp, getVolume, playEffect, setSoundEnabled, setVolume, soundEnabled } from "@/lib/practice";
 import {
-  completedCount, currentDay, deckAtIndex, initialPlanState, isFinished, lessonIndicesForDay,
-  loadPlanState, markDay, PlanState, planStreak, planUnlockedIndex, planXp, savePlanState,
-  startTrack, TRACKS, trackById, unmarkDay, XP_PER_DAY,
+  deckAtIndex, initialPlanState, lessonIndicesForDay, loadPlanState, markDay, PlanState,
+  planStatus, planUnlockedIndex, planXp, resetAnchorToToday, savePlanState, startTrack,
+  TRACKS, trackById, unmarkDay, XP_PER_DAY,
 } from "@/lib/plan";
 import Practice from "@/components/Practice";
 import SoundControl from "@/components/SoundControl";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import Logo from "@/components/Logo";
 
 const skillIcon: Record<SkillId, React.ComponentType<{ size?: number }>> = {
   grammar: BookOpen, vocabulary: Library, listening: Headphones,
@@ -53,6 +54,8 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [planToast, setPlanToast] = useState<{ day: number; xp: number } | null>(null);
   const [viewedDay, setViewedDay] = useState<number | null>(null);
+  const [showNext, setShowNext] = useState(false);
+  const [, setTick] = useState(0);
   const [confirm, setConfirm] = useState<{ title: string; message: string; confirmLabel: string; danger: boolean; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
@@ -63,6 +66,19 @@ export default function Home() {
     setHydrated(true);
   }, []);
   useEffect(() => { if (hydrated) savePlanState(plan); }, [plan, hydrated]);
+  // Keep plan status fresh across midnight, and roll the anchor (resetting the
+  // streak) if a due day was missed.
+  useEffect(() => {
+    if (!hydrated || !plan.trackId) return;
+    const check = () => {
+      const t = trackById(plan.trackId);
+      if (t && planStatus(plan, t).behind) setPlan((p) => resetAnchorToToday(p));
+      setTick((x) => x + 1);
+    };
+    check();
+    const id = window.setInterval(check, 30000);
+    return () => window.clearInterval(id);
+  }, [hydrated, plan]);
 
   const track = trackById(plan.trackId);
   const planIndex = track ? planUnlockedIndex(plan, track) : undefined;
@@ -74,10 +90,11 @@ export default function Home() {
     message: "Your day-by-day progress for this plan will be cleared. Your saved vocabulary practice and its XP aren’t affected.",
     confirmLabel: "Change plan",
     danger: true,
-    onConfirm: () => { setPlan(initialPlanState()); setViewedDay(null); setConfirm(null); },
+    onConfirm: () => { setPlan(initialPlanState()); setViewedDay(null); setShowNext(false); setConfirm(null); },
   });
   const completePlanDay = (d: number) => {
     setPlan((p) => markDay(p, d));
+    setShowNext(false);
     playEffect("achievement");
     setPlanToast({ day: d, xp: XP_PER_DAY });
     window.setTimeout(() => setPlanToast((t) => (t && t.day === d ? null : t)), 8000);
@@ -117,7 +134,7 @@ export default function Home() {
       <header className="site-header">
         <div className="wrap">
           <button className="brand" onClick={() => go("home")}>
-            <span className="brand-mark">D</span>
+            <span className="brand-mark"><Logo /></span>
             <span>Deutsch <b>Start</b></span>
           </button>
           <nav>
@@ -137,16 +154,19 @@ export default function Home() {
 
       {view === "home" && (
         <main className="wrap">
-          {track && (
-            <button className="plan-resume" onClick={() => go("plan")}>
-              <span className="plan-resume-ic"><Target size={18} /></span>
-              <span className="plan-resume-text">
-                <strong>{isFinished(plan, track) ? "Plan complete 🎉" : `Continue your plan · Day ${currentDay(plan, track)} of ${track.days}`}</strong>
-                <small>{track.name} · {totalXp.toLocaleString()} XP · {planStreak(plan)}-day streak</small>
-              </span>
-              <ArrowRight size={18} />
-            </button>
-          )}
+          {track && (() => {
+            const st = planStatus(plan, track);
+            return (
+              <button className="plan-resume" onClick={() => go("plan")}>
+                <span className="plan-resume-ic"><Target size={18} /></span>
+                <span className="plan-resume-text">
+                  <strong>{st.finished ? "Plan complete 🎉" : st.due ? `Day ${st.currentDay} due today` : `You’re set for today · Day ${st.currentDay} next`}</strong>
+                  <small>{track.name} · {totalXp.toLocaleString()} XP · {st.streak}-day streak{st.daysAhead > 0 ? ` · ${st.daysAhead} ahead` : ""}</small>
+                </span>
+                <ArrowRight size={18} />
+              </button>
+            );
+          })()}
           <section className="hero">
             <div>
               <span className="eyebrow"><MapPin size={13} /> German A1 → B1</span>
@@ -253,70 +273,90 @@ export default function Home() {
               </div>
             </>
           ) : (() => {
-            const cur = currentDay(plan, track);
-            const finished = isFinished(plan, track);
-            const done = completedCount(plan);
-            const pct = Math.round((done / track.days) * 100);
-            const todayCount = finished ? 0 : lessonIndicesForDay(track, cur).length;
+            const st = planStatus(plan, track);
+            const cur = st.currentDay;
+            const pct = Math.round((st.completed / track.days) * 100);
             const vDay = Math.min(Math.max(viewedDay ?? Math.min(cur, track.days), 1), track.days);
             const vLessons = lessonIndicesForDay(track, vDay);
             const vCompleted = !!plan.completions[vDay];
-            const isCurrent = vDay === cur && !finished;
-            const completedToday = Object.values(plan.completions).includes(new Date().toISOString().slice(0, 10));
-            const vStatus = vCompleted ? "Completed" : isCurrent ? "Today" : vDay > cur ? "Upcoming" : "Day";
+            const viewingCurrent = vDay === cur && !st.finished;
+            const showLessons = !viewingCurrent || st.finished || st.due || (st.covered && showNext);
+            const vStatus = vCompleted ? "Completed" : viewingCurrent ? (st.due ? "Due today" : "Today") : vDay > cur ? "Upcoming" : "Day";
             return (
               <>
                 <div className="page-head">
                   <span className="eyebrow"><Target size={13} /> {track.name}</span>
-                  <h1>{finished ? "Plan complete — Glückwunsch!" : `Day ${cur} of ${track.days}`}</h1>
-                  <p>{finished ? "You’ve worked through every scheduled day. Keep your words fresh in Practice, or start a new plan." : `${todayCount} lesson${todayCount === 1 ? "" : "s"} today · about ${track.minutesPerDay}.`}</p>
+                  <h1>{st.finished ? "Plan complete — Glückwunsch!" : st.due ? `Day ${cur} — due today` : `Day ${cur} · you’re set for today`}</h1>
+                  <p>{st.finished ? "You’ve finished every scheduled day. Keep your words fresh in Practice." : st.due ? "Complete it before midnight to keep your streak." : st.daysAhead > 0 ? `You’re ${st.daysAhead} day${st.daysAhead === 1 ? "" : "s"} ahead — nothing’s required today.` : "You’re done for today — come back tomorrow."}</p>
                 </div>
                 <div className="plan-stats">
                   <div className="pstat"><span className="pstat-ic"><Zap size={16} /></span><div><strong>{totalXp.toLocaleString()}</strong><span>XP</span></div></div>
-                  <div className="pstat"><span className="pstat-ic"><Check size={16} /></span><div><strong>{done}/{track.days}</strong><span>days done</span></div></div>
-                  <div className="pstat"><span className="pstat-ic"><Flame size={16} /></span><div><strong>{planStreak(plan)}</strong><span>day streak</span></div></div>
+                  <div className="pstat"><span className="pstat-ic"><Check size={16} /></span><div><strong>{st.completed}/{track.days}</strong><span>days done</span></div></div>
+                  <div className="pstat"><span className="pstat-ic"><Flame size={16} /></span><div><strong>{st.streak}</strong><span>day streak</span></div></div>
                   <div className="pstat"><span className="pstat-ic"><Trophy size={16} /></span><div><strong>{pct}%</strong><span>complete</span></div></div>
                 </div>
                 <div className="mastery-bar" aria-hidden="true"><div className="seg known" style={{ width: `${pct}%` }} /></div>
 
-                <div className="today-card">
-                  <div className="day-nav">
-                    <button className="day-nav-btn" disabled={vDay <= 1} onClick={() => setViewedDay(vDay - 1)} aria-label="Previous day"><ChevronLeft size={18} /></button>
-                    <div className="day-nav-label">
-                      <span className="eyebrow">{vStatus} · Day {vDay} of {track.days}</span>
-                      <strong>{vLessons.length ? `${vLessons.length} lesson${vLessons.length === 1 ? "" : "s"} · ~${track.minutesPerDay}` : "Lighter day — review your due words"}</strong>
-                    </div>
-                    <button className="day-nav-btn" disabled={vDay >= track.days} onClick={() => setViewedDay(vDay + 1)} aria-label="Next day"><ChevronRight size={18} /></button>
+                {st.finished ? (
+                  <div className="today-card">
+                    <div className="rest-msg"><Trophy size={16} /> Every day complete — keep practising to lock it in.</div>
+                    <div className="rest-actions"><button className="btn btn-ghost" onClick={() => go("practice")}><Dumbbell size={16} /> Open practice</button></div>
                   </div>
-                  <div className="today-lessons">
-                    {vLessons.map((idx) => {
-                      const d = deckAtIndex(idx);
-                      if (!d) return null;
-                      return (
-                        <a key={idx} href={lessonUrl({ level: d.level, number: d.lesson })} target="_blank" rel="noreferrer">
-                          <span className={`lesson-level ${d.level.toLowerCase()}`}>{d.level}</span>
-                          <span className="today-title">Lektion {d.lesson} · {d.title}</span>
-                          <ArrowUpRight size={15} />
-                        </a>
-                      );
-                    })}
-                  </div>
-                  {isCurrent ? (
-                    completedToday ? (
-                      <div className="next-day-countdown"><Clock size={16} /> Done for today — next day in <Countdown /></div>
-                    ) : (
-                      <div className="today-actions">
-                        <button className="btn btn-ghost" onClick={() => go("practice")}><Dumbbell size={16} /> Practice today’s words</button>
-                        <button className="btn btn-primary" onClick={() => completePlanDay(cur)}><Check size={16} /> Mark day complete</button>
+                ) : (
+                  <div className="today-card">
+                    <div className="day-nav">
+                      <button className="day-nav-btn" disabled={vDay <= 1} onClick={() => setViewedDay(vDay - 1)} aria-label="Previous day"><ChevronLeft size={18} /></button>
+                      <div className="day-nav-label">
+                        <span className="eyebrow">{vStatus} · Day {vDay} of {track.days}</span>
+                        <strong>{vLessons.length ? `${vLessons.length} lesson${vLessons.length === 1 ? "" : "s"} · ~${track.minutesPerDay}` : "Lighter day — review your due words"}</strong>
                       </div>
-                    )
-                  ) : (
-                    <div className="day-status">{vCompleted ? <><Check size={15} /> Completed</> : vDay > cur ? "Upcoming — finish earlier days first" : "Not completed yet"}</div>
-                  )}
-                  {viewedDay != null && viewedDay !== cur && (
-                    <button className="text-button day-back" onClick={() => setViewedDay(null)}>← Back to today</button>
-                  )}
-                </div>
+                      <button className="day-nav-btn" disabled={vDay >= track.days} onClick={() => setViewedDay(vDay + 1)} aria-label="Next day"><ChevronRight size={18} /></button>
+                    </div>
+
+                    {showLessons && (
+                      <div className="today-lessons">
+                        {vLessons.map((idx) => {
+                          const d = deckAtIndex(idx);
+                          if (!d) return null;
+                          return (
+                            <a key={idx} href={lessonUrl({ level: d.level, number: d.lesson })} target="_blank" rel="noreferrer">
+                              <span className={`lesson-level ${d.level.toLowerCase()}`}>{d.level}</span>
+                              <span className="today-title">Lektion {d.lesson} · {d.title}</span>
+                              <ArrowUpRight size={15} />
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {viewingCurrent ? (
+                      st.due ? (
+                        <>
+                          <div className="today-actions">
+                            <button className="btn btn-ghost" onClick={() => go("practice")}><Dumbbell size={16} /> Practice today’s words</button>
+                            <button className="btn btn-primary" onClick={() => completePlanDay(cur)}><Check size={16} /> Mark day complete</button>
+                          </div>
+                          <div className="due-line"><Clock size={16} /> Due in <Countdown /> — before midnight</div>
+                        </>
+                      ) : (
+                        <div className="rest-block">
+                          <div className="rest-msg"><Check size={16} /> All set for today{st.daysAhead > 0 ? ` — ${st.daysAhead} day${st.daysAhead === 1 ? "" : "s"} ahead` : ""}.</div>
+                          <div className="due-line"><Clock size={16} /> Come back in <Countdown /></div>
+                          <div className="rest-actions">
+                            <button className="text-button" onClick={() => setShowNext((s) => !s)}>{showNext ? "Hide next task" : "Show next task"}</button>
+                            {showNext && <button className="btn btn-primary" onClick={() => completePlanDay(cur)}><Check size={16} /> Start day {cur} now</button>}
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <div className="day-status">{vCompleted ? <><Check size={15} /> Completed</> : vDay > cur ? "Upcoming — finish earlier days first" : "Not completed yet"}</div>
+                    )}
+
+                    {viewedDay != null && viewedDay !== cur && (
+                      <button className="text-button day-back" onClick={() => setViewedDay(null)}>← Back to today</button>
+                    )}
+                  </div>
+                )}
 
                 <button className="text-button plan-change" onClick={resetPlan}><RotateCcw size={14} /> Change plan</button>
               </>
@@ -468,7 +508,7 @@ export default function Home() {
       <footer>
         <div className="wrap footer-grid">
           <div className="foot-brand">
-            <span className="brand-mark">D</span>
+            <span className="brand-mark"><Logo /></span>
             <div>
               <strong>Deutsch Start</strong>
               <p><Languages size={13} style={{ verticalAlign: "middle", marginRight: 5 }} />Free &amp; open German A1–B1 · no account, no ads, no tracking.</p>
