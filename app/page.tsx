@@ -1,16 +1,20 @@
 "use client";
 
 import {
-  ArrowRight, ArrowUpRight, BookOpen, Check, ChevronLeft, ChevronRight, Clock, Dumbbell, Flame,
-  GraduationCap, Headphones, Languages, Library, MapPin, Mic, Moon, Palette, PenLine, Play, RotateCcw,
-  Search, Settings, Sparkles, Sun, Target, Trophy, Type, Volume2, X, Zap,
+  ArrowRight, ArrowUpRight, Award, BookOpen, Check, ChevronLeft, ChevronRight, Clock, Download, Dumbbell,
+  Flame, GraduationCap, HardDriveDownload, Headphones, Languages, Library, MapPin, Mic, Moon, Palette,
+  PenLine, Play, RotateCcw, Search, Settings, Sparkles, Sun, Target, Trash2, Trophy, Type, Upload,
+  Volume2, X, Zap,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   GermanLevel, lessons, lessonUrl, levels, resourcesForSkill, skills, SkillId,
   totalLessons, vocabularyUrl,
 } from "@/data/german";
-import { getPracticeXp, getVolume, playEffect, setSoundEnabled, setVolume, soundEnabled } from "@/lib/practice";
+import {
+  allCards, BADGES, getPracticeXp, getVolume, initialPracticeState, loadPracticeState, masteryOf,
+  playEffect, practiceStreak, PracticeState, setSoundEnabled, setVolume, soundEnabled, summarize,
+} from "@/lib/practice";
 import {
   deckAtIndex, initialPlanState, lessonIndicesForDay, loadPlanState, markDay, PlanState,
   planStatus, planUnlockedIndex, planXp, resetAnchorToToday, savePlanState, startTrack,
@@ -20,6 +24,7 @@ import Practice from "@/components/Practice";
 import SoundControl from "@/components/SoundControl";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import Logo from "@/components/Logo";
+import { clearAllData, exportBackup, importBackup, readableAccent } from "@/lib/settings";
 
 const skillIcon: Record<SkillId, React.ComponentType<{ size?: number }>> = {
   grammar: BookOpen, vocabulary: Library, listening: Headphones,
@@ -39,8 +44,8 @@ function Countdown() {
   return <strong className="countdown">{pad(Math.floor(ms / 3600000))}:{pad(Math.floor((ms % 3600000) / 60000))}:{pad(Math.floor((ms % 60000) / 1000))}</strong>;
 }
 
-type View = "home" | "plan" | "lessons" | "practice" | "resources" | "settings";
-const NAV: [View, string][] = [["home", "Home"], ["plan", "Plan"], ["lessons", "Lessons"], ["practice", "Practice"], ["resources", "Resources"], ["settings", "Settings"]];
+type View = "home" | "plan" | "lessons" | "practice" | "progress" | "resources" | "settings";
+const NAV: [View, string][] = [["home", "Home"], ["plan", "Plan"], ["lessons", "Lessons"], ["practice", "Practice"], ["progress", "Progress"], ["resources", "Resources"], ["settings", "Settings"]];
 
 const ACCENTS: { name: string; value: string }[] = [
   { name: "Gold", value: "" }, // default brand gold
@@ -61,6 +66,8 @@ export default function Home() {
   const [dark, setDark] = useState(false);
   const [accent, setAccent] = useState<string>("");
   const [uiScale, setUiScale] = useState<number>(1);
+  const [practice, setPractice] = useState<PracticeState>(initialPracticeState);
+  const [reviewSignal, setReviewSignal] = useState(0);
   const [query, setQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<GermanLevel | "all">("all");
   const [focus, setFocus] = useState<{ level: GermanLevel; lesson: number } | null>(null);
@@ -103,6 +110,28 @@ export default function Home() {
   const planIndex = track ? planUnlockedIndex(plan, track) : undefined;
   const totalXp = planXp(plan) + (hydrated ? getPracticeXp() : 0);
 
+  const progressData = useMemo(() => {
+    const stats = practice.stats;
+    let seen = 0, correct = 0;
+    for (const id of Object.keys(stats)) { seen += stats[id].seen; correct += stats[id].correct; }
+    const accuracy = seen ? Math.round((correct / seen) * 100) : 0;
+    const overall = summarize(allCards, stats);
+    const byLevel = (["A1", "A2", "B1"] as const).map((lvl) => ({ lvl, ...summarize(allCards.filter((c) => c.level === lvl), stats) }));
+    const weak = allCards
+      .filter((c) => { const s = stats[c.id]; return s && s.seen > 0 && (s.lastWrong || s.correct / s.seen < 0.6); })
+      .sort((a, b) => { const sa = stats[a.id], sb = stats[b.id]; return (sa.correct / sa.seen) - (sb.correct / sb.seen); })
+      .slice(0, 12);
+    const daySet = new Set(practice.days);
+    const cells: { date: string; active: boolean }[] = [];
+    const today = new Date();
+    for (let i = 90; i >= 0; i--) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      const iso = d.toISOString().slice(0, 10);
+      cells.push({ date: iso, active: daySet.has(iso) });
+    }
+    return { accuracy, seen, overall, byLevel, weak, cells, streak: practiceStreak(practice.days), daysActive: practice.days.length };
+  }, [practice]);
+
   const choosePlan = (id: string) => { const t = trackById(id); if (t) setPlan(startTrack(t)); };
   const resetPlan = () => setConfirm({
     title: "Change your plan?",
@@ -123,9 +152,10 @@ export default function Home() {
   useEffect(() => {
     const root = document.documentElement;
     if (accent) {
-      root.style.setProperty("--gold", accent);
-      root.style.setProperty("--gold-soft", accent);
-      root.style.setProperty("--ring", accent);
+      const safe = readableAccent(accent);
+      root.style.setProperty("--gold", safe);
+      root.style.setProperty("--gold-soft", safe);
+      root.style.setProperty("--ring", safe);
     } else {
       root.style.removeProperty("--gold");
       root.style.removeProperty("--gold-soft");
@@ -137,13 +167,56 @@ export default function Home() {
   const changeAccent = (v: string) => { setAccent(v); localStorage.setItem("deutsch-start-accent", v); };
   const changeScale = (v: number) => { setUiScale(v); localStorage.setItem("deutsch-start-scale", String(v)); };
   const resetAppearance = () => { changeAccent(""); changeScale(1); };
+
+  const restoreRef = useRef<HTMLInputElement>(null);
+  const [dataMsg, setDataMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const downloadBackup = () => {
+    const blob = new Blob([exportBackup()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url; a.download = `deutsch-start-backup-${stamp}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    setDataMsg({ ok: true, text: "Backup downloaded." });
+  };
+  const onRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const res = importBackup(String(reader.result));
+      if (!res.ok) { setDataMsg({ ok: false, text: res.error ?? "Couldn’t restore that file." }); return; }
+      setConfirm({
+        title: "Backup loaded",
+        message: "Your progress was restored. The app will reload to apply it.",
+        confirmLabel: "Reload now",
+        danger: false,
+        onConfirm: () => window.location.reload(),
+      });
+    };
+    reader.readAsText(file);
+  };
+  const clearData = () => setConfirm({
+    title: "Erase all progress?",
+    message: "This permanently deletes your plan, streak, practice history and preferences on this device. Export a backup first if you might want it back.",
+    confirmLabel: "Erase everything",
+    danger: true,
+    onConfirm: () => { clearAllData(); window.location.reload(); },
+  });
   const toggleSound = () => setSound((s) => { const n = !s; setSoundEnabled(n); return n; });
   const changeVolume = (v: number) => {
     setVolumeState(v); setVolume(v);
     if (v > 0 && !sound) { setSound(true); setSoundEnabled(true); }
   };
 
-  const go = (v: View) => { setView(v); if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const go = (v: View) => {
+    if (v === "progress") setPractice(loadPracticeState());
+    setView(v);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const reviewWeak = () => { setReviewSignal((n) => n + 1); go("practice"); };
   const openLevel = (lvl: GermanLevel) => { setLevelFilter(lvl); go("lessons"); };
   const practiceLesson = (l: { level: GermanLevel; number: number }) => { setFocus({ level: l.level, lesson: l.number }); go("practice"); };
 
@@ -467,7 +540,7 @@ export default function Home() {
             <h1>Practice &amp; drills</h1>
             <p>Flashcards, multiple choice, type-it, der/die/das, listening and match pairs — on the exact words from the lessons. Set how far you’ve studied and only those words appear.</p>
           </div>
-          <Practice focus={focus} onFocusHandled={() => setFocus(null)} planIndex={planIndex} />
+          <Practice focus={focus} onFocusHandled={() => setFocus(null)} planIndex={planIndex} reviewSignal={reviewSignal} />
         </main>
       )}
 
@@ -521,6 +594,94 @@ export default function Home() {
           </div>
         </main>
       )}
+
+      {view === "progress" && (() => {
+        const pd = progressData;
+        const seg = (n: number, total: number) => `${total ? (n / total) * 100 : 0}%`;
+        const knownPct = pd.overall.total ? Math.round((pd.overall.knownCount / pd.overall.total) * 100) : 0;
+        return (
+          <main className="wrap">
+            <div className="page-head">
+              <span className="eyebrow"><Trophy size={13} /> Your progress</span>
+              <h1>Progress</h1>
+              <p>Everything you’ve built so far — mastery, your streak, and the words to shore up next.</p>
+            </div>
+
+            {pd.seen === 0 ? (
+              <div className="prog-empty">
+                <Sparkles size={28} />
+                <h3>No practice yet</h3>
+                <p>Run a practice session and your mastery, streak and weak-word list will appear here.</p>
+                <button className="btn btn-primary" onClick={() => go("practice")}><Dumbbell size={17} /> Start practising</button>
+              </div>
+            ) : (
+              <>
+                <div className="prog-cards">
+                  <div className="prog-stat"><span className="prog-ic"><Zap size={18} /></span><strong>{totalXp.toLocaleString()}</strong><span>total XP</span></div>
+                  <div className="prog-stat"><span className="prog-ic"><Flame size={18} /></span><strong>{pd.streak}</strong><span>day streak</span></div>
+                  <div className="prog-stat"><span className="prog-ic"><Check size={18} /></span><strong>{pd.overall.knownCount}</strong><span>words mastered</span></div>
+                  <div className="prog-stat"><span className="prog-ic"><Target size={18} /></span><strong>{pd.accuracy}%</strong><span>accuracy</span></div>
+                </div>
+
+                <section className="prog-section">
+                  <div className="prog-sec-head"><h2>Course mastery</h2><span>{pd.overall.knownCount}/{pd.overall.total} words · {knownPct}%</span></div>
+                  <div className="mastery-bar big" aria-hidden="true">
+                    <div className="seg known" style={{ width: seg(pd.overall.knownCount, pd.overall.total) }} />
+                    <div className="seg learning" style={{ width: seg(pd.overall.learningCount, pd.overall.total) }} />
+                  </div>
+                  <div className="prog-levels">
+                    {pd.byLevel.map((l) => (
+                      <div key={l.lvl} className="prog-level">
+                        <div className="prog-level-head"><strong>{l.lvl}</strong><span>{l.knownCount}/{l.total}</span></div>
+                        <div className="mastery-bar" aria-hidden="true">
+                          <div className="seg known" style={{ width: seg(l.knownCount, l.total) }} />
+                          <div className="seg learning" style={{ width: seg(l.learningCount, l.total) }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="prog-section">
+                  <div className="prog-sec-head"><h2>Activity</h2><span>{pd.daysActive} day{pd.daysActive === 1 ? "" : "s"} practised</span></div>
+                  <div className="heatmap">
+                    {pd.cells.map((c) => <span key={c.date} className={`heat${c.active ? " on" : ""}`} title={c.date} />)}
+                  </div>
+                  <div className="heat-legend"><span>13 weeks ago</span><span>today</span></div>
+                </section>
+
+                {pd.weak.length > 0 && (
+                  <section className="prog-section">
+                    <div className="prog-sec-head">
+                      <h2>Words to review</h2>
+                      <button className="btn btn-primary btn-sm" onClick={reviewWeak}><RotateCcw size={15} /> Review {pd.weak.length}</button>
+                    </div>
+                    <div className="weak-list">
+                      {pd.weak.map((c) => (
+                        <div key={c.id} className="weak-item">
+                          <strong>{c.de}</strong>
+                          <span>{c.en}</span>
+                          <em>{c.level} · L{c.lesson}</em>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                <section className="prog-section">
+                  <div className="prog-sec-head"><h2>Badges</h2><span>{practice.badges.length}/{BADGES.length}</span></div>
+                  <div className="badge-row">
+                    {BADGES.map((b) => {
+                      const earned = practice.badges.includes(b.id);
+                      return <span key={b.id} className={`badge ${earned ? "earned" : ""}`} title={b.hint}><Award size={14} /> {b.name}</span>;
+                    })}
+                  </div>
+                </section>
+              </>
+            )}
+          </main>
+        );
+      })()}
 
       {view === "settings" && (
         <main className="wrap">
@@ -580,6 +741,18 @@ export default function Home() {
               <h2><Volume2 size={17} /> Sound</h2>
               <p>Effects and pronunciation playback.</p>
               <SoundControl sound={sound} volume={volume} onToggle={toggleSound} onVolume={changeVolume} inline />
+            </section>
+
+            <section className="set-card set-data">
+              <h2><HardDriveDownload size={17} /> Your data</h2>
+              <p>Everything is stored only in this browser. Export a backup to keep it safe or move to another device.</p>
+              <div className="data-actions">
+                <button className="btn btn-primary" onClick={downloadBackup}><Download size={16} /> Export backup</button>
+                <button className="btn btn-ghost" onClick={() => restoreRef.current?.click()}><Upload size={16} /> Restore backup</button>
+                <button className="btn btn-ghost danger-ghost" onClick={clearData}><Trash2 size={16} /> Erase all</button>
+                <input ref={restoreRef} type="file" accept="application/json,.json" hidden onChange={onRestoreFile} />
+              </div>
+              {dataMsg && <p className={`data-msg ${dataMsg.ok ? "ok" : "err"}`}>{dataMsg.ok ? <Check size={14} /> : <X size={14} />} {dataMsg.text}</p>}
             </section>
 
             <section className="set-card set-reset">

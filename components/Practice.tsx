@@ -211,6 +211,34 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
 
   const article = articleOf(card);
 
+  // Keyboard-first drilling: 1–9 pick options, Space flips a flashcard,
+  // 1/2 rate it, R (or Space in listening) replays the audio.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      const typing = tag === "INPUT" || tag === "TEXTAREA";
+      if ((mode === "listen" || mode === "dictation") && (e.key === "r" || e.key === "R") && !typing) {
+        e.preventDefault(); speakGerman(card.de); return;
+      }
+      if (mode === "listen" && e.key === " " && !typing) { e.preventDefault(); speakGerman(card.de); return; }
+      if (revealed) return; // after reveal, the autofocused Next button takes Enter
+      if ((mode === "choice" || mode === "listen") && /^[1-9]$/.test(e.key)) {
+        const i = Number(e.key) - 1;
+        if (i < options.length) { e.preventDefault(); setPicked(options[i]); settle(options[i] === card.en); }
+      } else if (mode === "articles" && /^[1-3]$/.test(e.key)) {
+        const a = (["der", "die", "das"] as const)[Number(e.key) - 1];
+        e.preventDefault(); setPicked(a); settle(a === article);
+      } else if (mode === "flashcards" && !typing) {
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (!flipped) setFlipped(true); }
+        else if (flipped && e.key === "1") { e.preventDefault(); settle(false); }
+        else if (flipped && e.key === "2") { e.preventDefault(); settle(true); }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, revealed, flipped, options, card.id, article]);
+
   const renderBody = () => {
     if (mode === "flashcards") {
       return (
@@ -260,7 +288,7 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
             </div>
           )}
           <div className="option-grid">
-            {options.map((option) => {
+            {options.map((option, i) => {
               const isCorrect = option === card.en;
               const state = revealed ? (isCorrect ? "correct" : option === picked ? "wrong" : "dim") : "";
               return (
@@ -270,7 +298,7 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
                   disabled={revealed}
                   onClick={() => { setPicked(option); settle(isCorrect); }}
                 >
-                  {option}
+                  <span className="opt-key" aria-hidden="true">{i + 1}</span>{option}
                 </button>
               );
             })}
@@ -328,12 +356,12 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
             <small>{card.en}</small>
           </div>
           <div className="article-row">
-            {(["der", "die", "das"] as const).map((a) => {
+            {(["der", "die", "das"] as const).map((a, i) => {
               const isCorrect = a === article;
               const state = revealed ? (isCorrect ? "correct" : a === picked ? "wrong" : "dim") : "";
               return (
                 <button key={a} className={`article-choice ${state}`} disabled={revealed} onClick={() => { setPicked(a); settle(isCorrect); }}>
-                  {a}
+                  <span className="opt-key" aria-hidden="true">{i + 1}</span>{a}
                 </button>
               );
             })}
@@ -400,6 +428,16 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
         <span className="type-chip">{card.type}</span>
       </div>
       {renderBody()}
+      {!revealed && (() => {
+        const hint =
+          mode === "flashcards" ? "Space flips · 1 still learning · 2 knew it"
+          : mode === "choice" ? "Press 1–4 to answer"
+          : mode === "listen" ? "1–4 to answer · R replays"
+          : mode === "articles" ? "Press 1–3"
+          : mode === "dictation" ? "Enter checks · R replays"
+          : "Enter to check";
+        return <p className="kbd-hint" aria-hidden="true"><Keyboard size={13} /> {hint}</p>;
+      })()}
       {revealed && (
         <button className="next-button" onClick={onNext} autoFocus>
           {isLast ? "Finish" : "Next"} <ArrowRight size={17} />
@@ -412,10 +450,11 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
 // ---------------------------------------------------------------------------
 // Practice (embedded as a page section)
 // ---------------------------------------------------------------------------
-export default function Practice({ focus, onFocusHandled, planIndex }: {
+export default function Practice({ focus, onFocusHandled, planIndex, reviewSignal }: {
   focus?: { level: GermanLevel; lesson: number } | null;
   onFocusHandled?: () => void;
   planIndex?: number;
+  reviewSignal?: number;
 }) {
   const [state, setState] = useState<PracticeState>(loadPracticeState);
   const [scope, setScope] = useState<"all" | GermanLevel>("all");
@@ -535,6 +574,15 @@ export default function Practice({ focus, onFocusHandled, planIndex }: {
     if (!cards.length) return;
     setSessionModes(null); setMode(m); setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false);
   };
+
+  // The Progress page can request a "review my weakest words" session.
+  useEffect(() => {
+    if (!reviewSignal) return;
+    const weak = allUnlocked.filter((c) => { const s = state.stats[c.id]; return s && s.seen > 0 && (s.lastWrong || s.correct / s.seen < 0.6); });
+    const pool = weak.length ? weak : allUnlocked.filter((c) => masteryOf(state.stats[c.id]) !== "known");
+    if (pool.length) startSession("flashcards", shuffleArray(pool).slice(0, SESSION_SIZE));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reviewSignal]);
 
   const mixModeValid = (m: Mode, c: FlashcardWithMeta) => {
     if (m === "articles") return articleOf(c) != null;
