@@ -1,20 +1,17 @@
 export default function Logo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" width="100%" height="100%" className={className} role="img" aria-label="Deutsch Start">
-      <defs>
-        <linearGradient id="ds-logo-grad" x1="16" y1="8" x2="50" y2="58" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#FFC517" />
-          <stop offset="0.55" stopColor="#FF7A1A" />
-          <stop offset="1" stopColor="#E5231B" />
-        </linearGradient>
-      </defs>
-      {/* Filled "D" with a right-pointing play triangle knocked out (negative space). */}
+      {/* Solid "D" with an open doorway knocked out (the gap shows the background,
+          so the mark works in light and dark themes). D = currentColor. */}
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M14 8 L32 8 C46.36 8 56 18.6 56 32 C56 45.4 46.36 56 32 56 L14 56 Z M27 21 L45.5 32 L27 43 Z"
-        fill="url(#ds-logo-grad)"
+        d="M13 7 L31 7 C45.3 7 55 17.6 55 32 C55 46.4 45.3 57 31 57 L13 57 Z
+           M22 24 L35 20 L35 51 L22 51 Z"
+        fill="currentColor"
       />
+      {/* Gold door leaf (slightly ajar, hinged on the right). */}
+      <path d="M24.5 26.6 L35 23.5 L35 49 L24.5 49 Z" fill="#B8860B" />
     </svg>
   );
 }
