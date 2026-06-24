@@ -1,2 +1,5 @@
+# Allow these dependencies to run their install build scripts so pnpm install
+# does not fail with ERR_PNPM_IGNORED_BUILDS on CI (Vercel). sharp is pulled in
+# transitively by Next.js for image optimization.
 allowBuilds:
-  sharp: set this to true or false
+  sharp: true
