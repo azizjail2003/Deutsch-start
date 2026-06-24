@@ -804,7 +804,6 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
         <p>Tip: <b>Review due</b> uses spaced repetition — words come back right before you’d forget them. <b>Fill the gap</b> and <b>Dictation</b> build the active recall you need to speak.</p>
       </div>
 
-      <SpeechCheck />
       <ToastHost toasts={toasts} />
     </div>
   );
@@ -817,31 +816,6 @@ function ToastHost({ toasts }: { toasts: { id: number; text: string }[] }) {
       {toasts.map((t) => (
         <div key={t.id} className="toast"><Sparkles size={15} /> {t.text}</div>
       ))}
-    </div>
-  );
-}
-
-function SpeechCheck() {
-  const [status, setStatus] = useState<string>("");
-  const test = () => {
-    setStatus("loading…");
-    speakGerman("Hallo! Guten Tag.", (e) => {
-      if (e === "start") setStatus("playing…");
-      else if (e === "end") setStatus("✓ played");
-      else if (e === "unsupported") setStatus("audio unavailable in this browser");
-      else if (e.startsWith("error")) setStatus("using system voice…");
-    });
-  };
-  return (
-    <div className="speech-check">
-      <div>
-        <span className="flip-label">Audio</span>
-        <p>Words are read aloud by an online German voice — no install needed.</p>
-      </div>
-      <div className="speech-check-actions">
-        <button className="audio-button" onClick={test}><Volume2 size={15} /> Test voice</button>
-        {status && <span className="speech-status">{status}</span>}
-      </div>
     </div>
   );
 }
