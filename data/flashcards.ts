@@ -2049,3 +2049,20 @@ export function articleOf(card: Flashcard): "der" | "die" | "das" | null {
   const first = card.de.split(" ")[0];
   return first === "der" || first === "die" || first === "das" ? first : null;
 }
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Build a fill-the-gap from a card's example sentence by blanking its
+ * headword, or null if the card has no usable example.
+ */
+export function clozeFor(card: Flashcard): { sentence: string; answer: string } | null {
+  if (!card.example) return null;
+  const hw = headword(card);
+  if (!hw) return null;
+  const re = new RegExp(`\\b${escapeRegExp(hw)}\\b`, "i");
+  if (!re.test(card.example)) return null;
+  return { sentence: card.example.replace(re, "_____"), answer: hw };
+}
