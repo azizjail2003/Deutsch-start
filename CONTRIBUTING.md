@@ -14,8 +14,10 @@ resource.
   fabricate links.
 - **Keep the design identity** — a warm, adult, editorial learning tool. No
   childish styling.
-- **No backend.** All state stays in the browser's `localStorage`. Please don't
-  add servers, accounts, analytics, or trackers.
+- **No backend.** All learner progress stays in the browser's `localStorage`.
+  Please don't add servers, accounts, or third-party/cookie-based trackers. The
+  site uses Vercel Web Analytics for privacy-friendly, cookieless aggregate
+  visit counts only — no profiling or personal data.
 
 ## Setup
 
