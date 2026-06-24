@@ -1,23 +1,25 @@
 "use client";
 
 import {
-  ArrowRight, Check, ChevronLeft, Keyboard, Languages, Layers, ListChecks,
-  Lock, RotateCcw, Shuffle, Sparkles, Target, Trophy, Volume2,
+  ArrowRight, Award, Check, ChevronLeft, Ear, Flame, Keyboard, Languages, Layers, ListChecks,
+  Lock, Quote, RotateCcw, Shuffle, Sparkles, Target, Trophy, Volume2, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { articleOf, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
+import { allCards, articleOf, clozeFor, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
 import {
-  deckAtIndex, distractorsFor, effectiveIndex, levelsIn, loadPracticeState, masteryOf,
-  playEffect, PracticeState, primeSpeech, recordResult, savePracticeState, selectSession,
-  speakGerman, summarize, unlockedCards,
+  addSessionBonus, BADGES, deckAtIndex, distractorsFor, dueReviewCount, earnedBadgeIds, effectiveIndex,
+  levelsIn, loadPracticeState, masteryOf, playEffect, practiceStreak, PracticeState, primeSpeech,
+  recordResult, savePracticeState, selectSession, speakGerman, summarize, unlockedCards,
 } from "@/lib/practice";
 
-type Mode = "flashcards" | "choice" | "type" | "articles" | "listen" | "match";
+type Mode = "flashcards" | "choice" | "type" | "articles" | "listen" | "match" | "cloze" | "dictation";
 
 const MODES: { id: Mode; label: string; blurb: string; icon: typeof Layers }[] = [
   { id: "flashcards", label: "Flashcards", blurb: "Flip the card and check yourself", icon: Layers },
   { id: "choice", label: "Multiple choice", blurb: "Pick the right meaning", icon: ListChecks },
   { id: "type", label: "Type it", blurb: "Write the German word", icon: Keyboard },
+  { id: "cloze", label: "Fill the gap", blurb: "Complete the example sentence", icon: Quote },
+  { id: "dictation", label: "Dictation", blurb: "Hear it, then type it", icon: Ear },
   { id: "articles", label: "der · die · das", blurb: "Train the noun genders", icon: Languages },
   { id: "listen", label: "Listening", blurb: "Hear it, choose the meaning", icon: Volume2 },
   { id: "match", label: "Match pairs", blurb: "Connect German and English", icon: Shuffle },
@@ -191,8 +193,8 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
 
   useEffect(() => {
     setFlipped(false); setPicked(null); setTyped(""); setRevealed(false); setOutcome(null); setTypedExact(true);
-    if (mode === "listen") speakGerman(card.de);
-    if (mode === "type") window.setTimeout(() => inputRef.current?.focus(), 50);
+    if (mode === "listen" || mode === "dictation") speakGerman(card.de);
+    if (mode === "type" || mode === "cloze" || mode === "dictation") window.setTimeout(() => inputRef.current?.focus(), 50);
   }, [card.id, mode]);
 
   const options = useMemo(() => {
@@ -342,6 +344,50 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
         </>
       );
     }
+
+    if (mode === "cloze") {
+      const cloze = clozeFor(card);
+      const check = () => { const { correct, exact } = evaluateTyped(typed, card); setTypedExact(exact); settle(correct); };
+      return (
+        <>
+          <div className="prompt-word">
+            <span className="flip-label">Fill the gap</span>
+            <strong className="cloze-sentence">{cloze ? cloze.sentence : card.de}</strong>
+            <small>{card.en}</small>
+          </div>
+          <form className="type-row" onSubmit={(e) => { e.preventDefault(); if (!revealed) check(); else onNext(); }}>
+            <input ref={inputRef} value={typed} disabled={revealed} placeholder="Type the missing word…" onChange={(e) => setTyped(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} />
+            {!revealed && <button type="submit" className="check-button">Check</button>}
+          </form>
+          {revealed && (
+            <p className={`reveal-line ${outcome ? "ok" : "no"}`}>
+              {outcome ? (typedExact ? "Correct! " : "Close — ") : "Answer: "}<strong>{cloze ? cloze.answer : card.de}</strong>
+            </p>
+          )}
+        </>
+      );
+    }
+
+    if (mode === "dictation") {
+      const check = () => { const { correct, exact } = evaluateTyped(typed, card); setTypedExact(exact); settle(correct); };
+      return (
+        <>
+          <div className="listen-prompt">
+            <button className="audio-button big" onClick={() => speakGerman(card.de)}><Volume2 size={22} /> Play again</button>
+            <span className="listen-hint">Type what you hear</span>
+          </div>
+          <form className="type-row" onSubmit={(e) => { e.preventDefault(); if (!revealed) check(); else onNext(); }}>
+            <input ref={inputRef} value={typed} disabled={revealed} placeholder="Type in German…" onChange={(e) => setTyped(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} />
+            {!revealed && <button type="submit" className="check-button">Check</button>}
+          </form>
+          {revealed && (
+            <p className={`reveal-line ${outcome ? "ok" : "no"}`}>
+              {outcome ? (typedExact ? "Correct! " : "Close enough — ") : "Answer: "}<strong>{card.de}</strong> — {card.en}
+            </p>
+          )}
+        </>
+      );
+    }
     return null;
   };
 
@@ -397,6 +443,7 @@ export default function Practice({ focus, onFocusHandled }: {
   useEffect(() => {
     if (done && session) {
       playEffect("finish");
+      setState((s) => addSessionBonus(s, correctCount, session.length));
       const pct = Math.round((correctCount / session.length) * 100);
       pushToast(`Session done — ${correctCount}/${session.length} · ${pct}%`);
     }
@@ -426,27 +473,53 @@ export default function Practice({ focus, onFocusHandled }: {
   }, [allUnlocked, scope, lessonFilter]);
   const focusTitle = lessonFilter ? scopedPool[0]?.lessonTitle ?? "" : "";
   const summary = useMemo(() => summarize(allUnlocked, state.stats), [allUnlocked, state.stats]);
+  const globalSummary = useMemo(() => summarize(allCards, state.stats), [state.stats]);
+  const streakDays = practiceStreak(state.days);
+  const dueCount = useMemo(() => dueReviewCount(allUnlocked, state.stats), [allUnlocked, state.stats]);
 
   useEffect(() => {
     if (scope !== "all" && !unlockedLevels.includes(scope)) setScope("all");
   }, [scope, unlockedLevels]);
 
+  // Detect and celebrate newly earned badges.
+  useEffect(() => {
+    const a1 = allCards.filter((c) => c.level === "A1");
+    const a1Summary = summarize(a1, state.stats);
+    const earned = earnedBadgeIds({
+      knownCount: globalSummary.knownCount,
+      a1Known: a1.length > 0 && a1Summary.knownCount === a1.length,
+      streak: streakDays,
+      sessions: state.sessions,
+      xp: state.xp,
+    });
+    const fresh = earned.filter((id) => !state.badges.includes(id));
+    if (fresh.length) {
+      setState((s) => ({ ...s, badges: Array.from(new Set([...s.badges, ...fresh])) }));
+      playEffect("achievement");
+      fresh.forEach((id) => { const b = BADGES.find((x) => x.id === id); if (b) pushToast(`Badge unlocked — ${b.name}`); });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.xp, state.sessions, state.stats, state.days]);
+
   const nounCount = scopedPool.filter((c) => articleOf(c) != null).length;
+  const clozeCount = scopedPool.filter((c) => clozeFor(c) != null).length;
   const modeAvailable = (m: Mode): boolean => {
     if (m === "articles") return nounCount >= 1;
+    if (m === "cloze") return clozeCount >= 1;
     if (m === "match") return scopedPool.length >= 2;
     if (m === "choice" || m === "listen") return allUnlocked.length >= 2 && scopedPool.length >= 1;
     return scopedPool.length >= 1;
   };
 
-  const startSession = (m: Mode, cardsOverride?: FlashcardWithMeta[]) => {
+  const startSession = (m: Mode, cardsOverride?: FlashcardWithMeta[], reviewOnly = false) => {
     primeSpeech();
     streakRef.current = 0;
-    let base = cardsOverride ?? scopedPool;
+    let base = cardsOverride ?? (reviewOnly ? allUnlocked : scopedPool);
     if (m === "articles") base = base.filter((c) => articleOf(c) != null);
+    if (m === "cloze") base = base.filter((c) => clozeFor(c) != null);
     const picked = cardsOverride
       ? cardsOverride
-      : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !cardsOverride);
+      : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !reviewOnly, reviewOnly);
     const cards = m === "match" ? shuffleArray(picked) : picked;
     if (!cards.length) return;
     setMode(m); setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false);
@@ -564,6 +637,14 @@ export default function Practice({ focus, onFocusHandled }: {
         <div className="seg learning" style={{ width: `${summary.total ? (summary.learningCount / summary.total) * 100 : 0}%` }} />
       </div>
 
+      <div className="practice-meta">
+        <span className="pmeta"><Zap size={15} /> {state.xp.toLocaleString()} XP</span>
+        <span className="pmeta"><Flame size={15} /> {streakDays} day{streakDays === 1 ? "" : "s"}</span>
+        <button className="review-btn" disabled={dueCount === 0} onClick={() => startSession("flashcards", undefined, true)}>
+          <RotateCcw size={15} /> {dueCount > 0 ? `Review ${dueCount} due` : "All caught up"}
+        </button>
+      </div>
+
       <LessonControl upTo={upTo} all={all} words={allUnlocked.length} onSet={setUpTo} />
 
       <div className="practice-scope">
@@ -602,9 +683,16 @@ export default function Practice({ focus, onFocusHandled }: {
         })}
       </div>
 
+      <div className="badge-row">
+        {BADGES.map((b) => {
+          const earned = state.badges.includes(b.id);
+          return <span key={b.id} className={`badge ${earned ? "earned" : ""}`} title={b.hint}><Award size={14} /> {b.name}</span>;
+        })}
+      </div>
+
       <div className="practice-note">
         <Sparkles size={16} />
-        <p>Tip: set the slider to how far you’ve studied so you only drill words you’ve met. <b>Type it</b> and <b>Listening</b> build the active recall you need to actually speak.</p>
+        <p>Tip: <b>Review due</b> uses spaced repetition — words come back right before you’d forget them. <b>Fill the gap</b> and <b>Dictation</b> build the active recall you need to speak.</p>
       </div>
 
       <SpeechCheck />

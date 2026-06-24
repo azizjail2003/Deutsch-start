@@ -195,6 +195,17 @@ footer .foot-brand { display: flex; align-items: center; gap: 10px; }
 .mastery-bar .seg.known { background: var(--gold); }
 .mastery-bar .seg.learning { background: var(--red); }
 
+.practice-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
+.pmeta { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; padding: 7px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.pmeta svg { color: var(--gold); }
+.review-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--surface)); color: var(--gold-soft); border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer; transition: background .15s ease; }
+.review-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--gold) 20%, var(--surface)); }
+.review-btn:disabled { opacity: .55; cursor: default; border-color: var(--line); color: var(--muted); background: var(--surface); }
+.badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 999px; border: 1px dashed var(--line); color: var(--muted); background: var(--surface); opacity: .7; }
+.badge.earned { border-style: solid; border-color: var(--gold); color: var(--gold-soft); background: color-mix(in srgb, var(--gold) 12%, var(--surface)); opacity: 1; }
+.cloze-sentence { font-size: clamp(20px, 3.5vw, 26px) !important; line-height: 1.4 !important; }
+
 .lesson-control { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; margin-bottom: 18px; box-shadow: var(--shadow-sm); }
 .lesson-control-head { display: flex; align-items: center; gap: 9px; font-size: 15px; margin-bottom: 12px; flex-wrap: wrap; }
 .lesson-control-head strong { font-weight: 700; }

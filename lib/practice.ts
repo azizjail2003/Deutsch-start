@@ -12,7 +12,8 @@ export const PRACTICE_STORAGE_KEY = "deutsch-start-practice-v1";
 export type CardStat = {
   seen: number;
   correct: number;
-  streak: number;
+  box: number; // Leitner box: 0 = relearn now, higher = longer interval
+  due: number; // next-review timestamp (ms)
   lastWrong: boolean;
 };
 
@@ -21,11 +22,15 @@ export type PracticeState = {
   // null → practise the whole course.
   studiedUpTo: number | null;
   stats: Record<string, CardStat>;
+  xp: number;
+  sessions: number;
+  days: string[]; // ISO dates (YYYY-MM-DD) on which the learner practised
+  badges: string[]; // earned badge ids
 };
 
-export const emptyStat: CardStat = { seen: 0, correct: 0, streak: 0, lastWrong: false };
+export const emptyStat: CardStat = { seen: 0, correct: 0, box: 0, due: 0, lastWrong: false };
 
-export const initialPracticeState = (): PracticeState => ({ studiedUpTo: null, stats: {} });
+export const initialPracticeState = (): PracticeState => ({ studiedUpTo: null, stats: {}, xp: 0, sessions: 0, days: [], badges: [] });
 
 export function loadPracticeState(): PracticeState {
   if (typeof window === "undefined") return initialPracticeState();
@@ -36,10 +41,18 @@ export function loadPracticeState(): PracticeState {
     return {
       studiedUpTo: parsed.studiedUpTo ?? null,
       stats: parsed.stats ?? {},
+      xp: parsed.xp ?? 0,
+      sessions: parsed.sessions ?? 0,
+      days: parsed.days ?? [],
+      badges: parsed.badges ?? [],
     };
   } catch {
     return initialPracticeState();
   }
+}
+
+export function getPracticeXp(): number {
+  return loadPracticeState().xp;
 }
 
 export function savePracticeState(state: PracticeState) {
@@ -72,21 +85,96 @@ export function levelsIn(cards: FlashcardWithMeta[]): GermanLevel[] {
 
 export type Mastery = "new" | "learning" | "known";
 
+const BOX_DAYS = [0, 1, 2, 4, 9, 21]; // Leitner review intervals (days)
+const KNOWN_BOX = 4;
+const DAY_MS = 86400000;
+const XP_PER_CORRECT = 2;
+
+function normalizeStat(stat?: Partial<CardStat> & { streak?: number }): CardStat {
+  if (!stat) return { ...emptyStat };
+  const box = stat.box ?? (typeof stat.streak === "number" && stat.streak >= 3 ? KNOWN_BOX : 0);
+  return {
+    seen: stat.seen ?? 0,
+    correct: stat.correct ?? 0,
+    box,
+    due: stat.due ?? 0,
+    lastWrong: stat.lastWrong ?? false,
+  };
+}
+
 export function masteryOf(stat: CardStat | undefined): Mastery {
-  if (!stat || stat.seen === 0) return "new";
-  if (stat.streak >= 3) return "known";
+  const s = normalizeStat(stat);
+  if (s.seen === 0) return "new";
+  if (s.box >= KNOWN_BOX) return "known";
   return "learning";
 }
 
 export function recordResult(state: PracticeState, id: string, correct: boolean): PracticeState {
-  const prev = state.stats[id] ?? emptyStat;
+  const prev = normalizeStat(state.stats[id]);
+  const box = correct ? Math.min(prev.box + 1, BOX_DAYS.length - 1) : 0;
   const next: CardStat = {
     seen: prev.seen + 1,
     correct: prev.correct + (correct ? 1 : 0),
-    streak: correct ? prev.streak + 1 : 0,
+    box,
+    due: Date.now() + BOX_DAYS[box] * DAY_MS,
     lastWrong: !correct,
   };
-  return { ...state, stats: { ...state.stats, [id]: next } };
+  const today = new Date().toISOString().slice(0, 10);
+  const days = state.days.includes(today) ? state.days : [...state.days, today];
+  return {
+    ...state,
+    stats: { ...state.stats, [id]: next },
+    xp: state.xp + (correct ? XP_PER_CORRECT : 0),
+    days,
+  };
+}
+
+/** A previously-seen card whose scheduled review time has arrived. */
+export function isDueForReview(stat: CardStat | undefined, now = Date.now()): boolean {
+  const s = normalizeStat(stat);
+  return s.seen > 0 && s.due <= now;
+}
+
+export function dueReviewCount(cards: FlashcardWithMeta[], stats: Record<string, CardStat>, now = Date.now()): number {
+  return cards.reduce((n, c) => (isDueForReview(stats[c.id], now) ? n + 1 : n), 0);
+}
+
+/** Consecutive calendar days (ending today or yesterday) that had practice. */
+export function practiceStreak(days: string[]): number {
+  if (!days.length) return 0;
+  const set = new Set(days);
+  const d = new Date();
+  if (!set.has(d.toISOString().slice(0, 10))) d.setDate(d.getDate() - 1);
+  let count = 0;
+  while (set.has(d.toISOString().slice(0, 10))) { count++; d.setDate(d.getDate() - 1); }
+  return count;
+}
+
+/** End-of-session XP (with a small perfect-score bonus) and session count. */
+export function addSessionBonus(state: PracticeState, correct: number, total: number): PracticeState {
+  const perfect = total > 0 && correct === total;
+  return { ...state, xp: state.xp + 10 + (perfect ? 10 : 0), sessions: state.sessions + 1 };
+}
+
+export type Badge = { id: string; name: string; hint: string };
+export const BADGES: Badge[] = [
+  { id: "first-session", name: "First steps", hint: "Finish a practice session" },
+  { id: "fifty-known", name: "Fifty strong", hint: "Master 50 words" },
+  { id: "hundred-known", name: "Centurion", hint: "Master 100 words" },
+  { id: "streak-7", name: "Week warrior", hint: "Practise 7 days in a row" },
+  { id: "a1-cleared", name: "A1 cleared", hint: "Master every A1 word" },
+  { id: "xp-1000", name: "Thousand club", hint: "Earn 1,000 practice XP" },
+];
+
+export function earnedBadgeIds(args: { knownCount: number; a1Known: boolean; streak: number; sessions: number; xp: number }): string[] {
+  const out: string[] = [];
+  if (args.sessions >= 1) out.push("first-session");
+  if (args.knownCount >= 50) out.push("fifty-known");
+  if (args.knownCount >= 100) out.push("hundred-known");
+  if (args.streak >= 7) out.push("streak-7");
+  if (args.a1Known) out.push("a1-cleared");
+  if (args.xp >= 1000) out.push("xp-1000");
+  return out;
 }
 
 export type MasterySummary = { total: number; knownCount: number; learningCount: number; newCount: number };
@@ -118,7 +206,14 @@ export function selectSession(
   stats: Record<string, CardStat>,
   count: number,
   weakOnly = false,
+  reviewOnly = false,
 ): FlashcardWithMeta[] {
+  if (reviewOnly) {
+    const now = Date.now();
+    const due = pool.filter((c) => { const s = normalizeStat(stats[c.id]); return s.seen === 0 || s.due <= now; });
+    due.sort((a, b) => normalizeStat(stats[a.id]).due - normalizeStat(stats[b.id]).due);
+    return due.slice(0, Math.min(count, due.length));
+  }
   const source = weakOnly ? pool.filter((c) => masteryOf(stats[c.id]) !== "known") : pool;
   const wrong: FlashcardWithMeta[] = [];
   const fresh: FlashcardWithMeta[] = [];
