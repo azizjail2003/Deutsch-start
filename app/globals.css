@@ -412,6 +412,16 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
   .site-header nav button { padding: 8px 10px; font-size: 13px; }
   .step-grid { grid-template-columns: 1fr; }
 }
+/* Phones / small tablets: header wraps to two rows, nav becomes a scrollable
+   strip so every item stays reachable. */
+@media (max-width: 760px) {
+  .site-header .wrap { height: auto; min-height: 58px; flex-wrap: wrap; row-gap: 6px; padding: 8px 0; }
+  .site-header .brand { order: 1; }
+  .site-header .header-actions { order: 2; margin-left: auto; }
+  .site-header nav { order: 3; width: 100%; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .site-header nav::-webkit-scrollbar { display: none; }
+  .site-header nav button { flex: 0 0 auto; white-space: nowrap; }
+}
 @media (max-width: 600px) {
   .free-pill { display: none; }
   .site-header .wrap { gap: 8px; }
