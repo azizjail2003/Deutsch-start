@@ -35,8 +35,9 @@ function normalize(value: string): string {
     .trim()
     .toLowerCase()
     .replace(/^(der|die|das)\s+/, "")
-    .replace(/[.,!?;:()„“"]/g, "")
+    .replace(/[.,!?;:()„“"…]/g, "")
     .replace(/\s+/g, " ")
+    .trim()
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss");
 }
 
@@ -45,7 +46,7 @@ function looseNormalize(value: string): string {
     .trim()
     .toLowerCase()
     .replace(/^(der|die|das)\s+/, "")
-    .replace(/[.,!?;:()„“"'-]/g, "")
+    .replace(/[.,!?;:()„“"'…-]/g, "")
     .replace(/\s+/g, "")
     .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "s")
     .replace(/(.)\1+/g, "$1");
