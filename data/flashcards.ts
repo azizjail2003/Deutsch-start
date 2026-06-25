@@ -1375,6 +1375,8 @@ const a2Decks: RawDeck[] = [
       { de: "aus gutem Grund", en: "for a good reason", type: "phrase" },
       { de: "Ich fahre mit dem schnellen Zug.", en: "I'm travelling on the fast train.", type: "phrase" },
       { de: "alt", en: "old", type: "adjective" },
+      { de: "nett", en: "nice / kind", type: "adjective", example: "Er spricht mit einer netten Frau.", exampleEn: "He's talking to a nice woman." },
+      { de: "süß", en: "sweet / cute", type: "adjective", example: "Hilfst du den süßen Kindern?", exampleEn: "Are you helping the sweet children?" },
     ],
   },
   {
@@ -1387,6 +1389,7 @@ const a2Decks: RawDeck[] = [
       { de: "immer wenn", en: "whenever / every time", type: "phrase", example: "Immer wenn ich ihn sehe, lacht er.", exampleEn: "Whenever I see him, he laughs." },
       { de: "Ruf mich an, wenn du ankommst.", en: "Call me when you arrive.", type: "phrase" },
       { de: "der Fall", en: "the case", type: "noun", plural: "die Fälle", note: "auf jeden Fall = in any case." },
+      { de: "die Hausaufgabe", en: "the homework", type: "noun", plural: "die Hausaufgaben", example: "Du kannst fernsehen, wenn du deine Hausaufgaben gemacht hast.", exampleEn: "You can watch TV when you've done your homework." },
     ],
   },
   {
@@ -1400,6 +1403,14 @@ const a2Decks: RawDeck[] = [
       { de: "das Ende der Geschichte", en: "the end of the story", type: "phrase" },
       { de: "die Geschichte", en: "the story / history", type: "noun", plural: "die Geschichten" },
       { de: "der Titel", en: "the title", type: "noun", plural: "die Titel" },
+      { de: "meines", en: "my (m./n. genitive)", type: "pronoun", example: "Das ist das Haus meines Bruders.", exampleEn: "That is my brother's house." },
+      { de: "deines", en: "your (m./n. genitive)", type: "pronoun", example: "die Farbe deines Autos", exampleEn: "the colour of your car" },
+      { de: "seines", en: "his/its (m./n. genitive)", type: "pronoun", example: "der Titel seines Buches", exampleEn: "the title of his book" },
+      { de: "ihres", en: "her/their (m./n. genitive)", type: "pronoun", example: "das Spielzeug ihres Kindes", exampleEn: "her child's toy" },
+      { de: "unseres", en: "our (m./n. genitive)", type: "pronoun", example: "das Ende unseres Urlaubs", exampleEn: "the end of our holiday" },
+      { de: "eures", en: "your (plural, m./n. genitive)", type: "pronoun", example: "die Tür eures Hauses", exampleEn: "the door of your house" },
+      { de: "Ihres", en: "your (formal, m./n. genitive)", type: "pronoun", example: "der Name Ihres Kindes", exampleEn: "your child's name" },
+      { de: "die Tante", en: "the aunt", type: "noun", plural: "die Tanten", example: "Die Tochter meiner Tante ist süß.", exampleEn: "My aunt's daughter is cute." },
     ],
   },
   {
@@ -1412,6 +1423,7 @@ const a2Decks: RawDeck[] = [
       { de: "die Wohnung meiner besten Freundin", en: "my best friend's flat", type: "phrase" },
       { de: "trotz des schlechten Wetters", en: "despite the bad weather", type: "phrase", note: "trotz takes the genitive." },
       { de: "lang", en: "long", type: "adjective" },
+      { de: "das Spielzeug", en: "the toy", type: "noun", plural: "die Spielzeuge", example: "Das ist das Spielzeug des kleinen Kindes.", exampleEn: "That's the small child's toy." },
     ],
   },
   {
