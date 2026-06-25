@@ -3,7 +3,7 @@
 import {
   ArrowRight, ArrowUpRight, Award, BookOpen, Check, ChevronLeft, ChevronRight, Clock, Download, Dumbbell,
   Flame, GraduationCap, HardDriveDownload, Headphones, Languages, Library, Lock, MapPin, Mic, Moon, Palette,
-  PenLine, Play, RotateCcw, Search, Settings, Sparkles, Sun, Target, Trash2, Trophy, Type, Upload,
+  PenLine, Play, RotateCcw, Search, Settings, Sparkles, Star, Sun, Target, Trash2, Trophy, Type, Upload,
   Volume2, X, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -13,7 +13,8 @@ import {
 } from "@/data/german";
 import {
   allCards, BADGES, effectiveIndex, getPracticeXp, getVolume, initialPracticeState, loadPracticeState, masteryOf,
-  playEffect, practiceStreak, PracticeState, setSoundEnabled, setVolume, soundEnabled, speakGerman, summarize,
+  playEffect, practiceStreak, PracticeState, savePracticeState, setSoundEnabled, setVolume, soundEnabled,
+  speakGerman, summarize, toggleMarked,
 } from "@/lib/practice";
 import {
   deckAtIndex, initialPlanState, lessonIndicesForDay, loadPlanState, markDay, PlanState,
@@ -72,6 +73,7 @@ export default function Home() {
   const [levelFilter, setLevelFilter] = useState<GermanLevel | "all">("all");
   const [dictQuery, setDictQuery] = useState("");
   const [dictLevel, setDictLevel] = useState<GermanLevel | "all">("all");
+  const [dictMarkedOnly, setDictMarkedOnly] = useState(false);
   const [focus, setFocus] = useState<{ level: GermanLevel; lesson: number } | null>(null);
   const [sound, setSound] = useState(true);
   const [volume, setVolumeState] = useState(0.7);
@@ -220,6 +222,7 @@ export default function Home() {
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const reviewWeak = () => { setReviewSignal((n) => n + 1); go("practice"); };
+  const toggleMark = (id: string) => setPractice((p) => { const n = toggleMarked(p, id); savePracticeState(n); return n; });
   const openLevel = (lvl: GermanLevel) => { setLevelFilter(lvl); go("lessons"); };
   const practiceLesson = (l: { level: GermanLevel; number: number }) => { setFocus({ level: l.level, lesson: l.number }); go("practice"); };
 
@@ -240,9 +243,11 @@ export default function Home() {
 
   // Dictionary: every word, with lessons not yet reached shown locked.
   const reachedIndex = planIndex ?? effectiveIndex(practice);
+  const markedSet = useMemo(() => new Set(practice.marked), [practice.marked]);
   const dict = useMemo(() => {
     const term = dictQuery.trim().toLowerCase();
     const rows = allCards.filter((c) => {
+      if (dictMarkedOnly && !markedSet.has(c.id)) return false;
       if (dictLevel !== "all" && c.level !== dictLevel) return false;
       if (!term) return true;
       return c.de.toLowerCase().includes(term) || c.en.toLowerCase().includes(term);
@@ -250,7 +255,7 @@ export default function Home() {
     const unlocked = allCards.filter((c) => c.deckIndex <= reachedIndex).length;
     const counts = (["A1", "A2", "B1"] as const).map((id) => ({ id, count: allCards.filter((c) => c.level === id).length }));
     return { rows, unlocked, counts };
-  }, [dictQuery, dictLevel, reachedIndex]);
+  }, [dictQuery, dictLevel, dictMarkedOnly, markedSet, reachedIndex]);
 
   const start = lessons[0];
 
@@ -580,10 +585,17 @@ export default function Home() {
                 {l.id} <span className="filter-count">{l.count}</span>
               </button>
             ))}
+            <button className={`dict-tricky-chip ${dictMarkedOnly ? "active" : ""}`} onClick={() => setDictMarkedOnly((v) => !v)} aria-pressed={dictMarkedOnly}>
+              <Star size={13} /> Tricky <span className="filter-count">{practice.marked.length}</span>
+            </button>
           </div>
           <p className="lesson-count">{dict.rows.length} word{dict.rows.length === 1 ? "" : "s"} shown</p>
           {dict.rows.length === 0 ? (
-            <div className="empty">No words match “{dictQuery}”. Try a different word or clear the search.</div>
+            <div className="empty">
+              {dictMarkedOnly && !dictQuery
+                ? "No tricky words yet. Tap the ☆ on any word — here or during practice — to keep seeing it until it sticks."
+                : `No words match “${dictQuery}”. Try a different word or clear the search.`}
+            </div>
           ) : (
             <div className="dict-list">
               {dict.rows.map((c) => {
@@ -613,6 +625,16 @@ export default function Home() {
                         </>
                       )}
                     </div>
+                    {!locked && (
+                      <button
+                        className={`dict-mark ${markedSet.has(c.id) ? "on" : ""}`}
+                        onClick={() => toggleMark(c.id)}
+                        aria-pressed={markedSet.has(c.id)}
+                        title={markedSet.has(c.id) ? "On your tricky list — tap to remove" : "Mark as tricky — practise it more"}
+                      >
+                        <Star size={15} />
+                      </button>
+                    )}
                   </div>
                 );
               })}

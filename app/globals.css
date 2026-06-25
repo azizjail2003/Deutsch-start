@@ -452,6 +452,16 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .session-bar { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
 .session-bar .session-title { font-weight: 700; }
 .session-bar .session-count { margin-left: auto; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.session-bar-end { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.session-bar-end .session-count { margin-left: 0; }
+.mark-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease; }
+.mark-btn:hover { border-color: var(--gold); color: var(--gold-soft); }
+.mark-btn.on { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 16%, var(--surface)); color: var(--gold-soft); }
+.mark-btn.on svg { fill: currentColor; }
+.review-btn.tricky { border-color: var(--line); background: var(--surface); color: var(--ink); }
+.review-btn.tricky:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-soft); }
+.review-btn.tricky svg { fill: currentColor; }
+.review-btn.tricky:disabled svg { fill: none; }
 .session-progress { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin-bottom: 24px; }
 .session-progress > div { height: 100%; background: var(--gold); transition: width .3s ease; }
 
@@ -592,6 +602,12 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .dict-ex { font-size: 13px; color: var(--muted); font-style: italic; line-height: 1.5; }
 .dict-note { font-size: 12px; color: var(--gold-soft); }
 .dict-lockmsg { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: var(--muted); }
+.dict-mark { flex: none; display: grid; place-items: center; width: 36px; height: 36px; margin-top: 1px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--muted); cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease; }
+.dict-mark:hover { border-color: var(--gold); color: var(--gold-soft); }
+.dict-mark.on { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 16%, var(--surface)); color: var(--gold-soft); }
+.dict-mark.on svg { fill: currentColor; }
+.dict-tricky-chip { display: inline-flex; align-items: center; gap: 6px; }
+.dict-tricky-chip.active svg { fill: currentColor; }
 
 /* Keep the nav usable on small screens (it's the only way to move between views) */
 @media (max-width: 900px) {

@@ -2,14 +2,14 @@
 
 import {
   ArrowRight, Award, Check, ChevronLeft, Ear, Flame, Keyboard, Languages, Layers, ListChecks,
-  Lock, Quote, RotateCcw, Shuffle, Sparkles, Target, Trophy, Volume2, Zap,
+  Lock, Quote, RotateCcw, Shuffle, Sparkles, Star, Target, Trophy, Volume2, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { allCards, articleOf, clozeFor, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
 import {
   addSessionBonus, BADGES, deckAtIndex, distractorsFor, dueReviewCount, earnedBadgeIds,
-  levelsIn, loadPracticeState, masteryOf, playEffect, practiceStreak, PracticeState, primeSpeech,
-  recordResult, savePracticeState, selectSession, speakGerman, summarize, unlockedCards,
+  levelsIn, loadPracticeState, MARK_RELEASE_BOX, masteryOf, playEffect, practiceStreak, PracticeState,
+  primeSpeech, recordResult, savePracticeState, selectSession, speakGerman, summarize, toggleMarked, unlockedCards,
 } from "@/lib/practice";
 
 type Mode = "flashcards" | "choice" | "type" | "articles" | "listen" | "match" | "cloze" | "dictation";
@@ -526,6 +526,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const globalSummary = useMemo(() => summarize(allCards, state.stats), [state.stats]);
   const streakDays = practiceStreak(state.days);
   const dueCount = useMemo(() => dueReviewCount(allUnlocked, state.stats), [allUnlocked, state.stats]);
+  const trickyCards = useMemo(() => allUnlocked.filter((c) => state.marked.includes(c.id)), [allUnlocked, state.marked]);
 
   useEffect(() => {
     if (scope !== "all" && !unlockedLevels.includes(scope)) setScope("all");
@@ -569,10 +570,14 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     if (m === "cloze") base = base.filter((c) => clozeFor(c) != null);
     const picked = cardsOverride
       ? cardsOverride
-      : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !reviewOnly, reviewOnly);
+      : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !reviewOnly, reviewOnly, state.marked);
     const cards = m === "match" ? shuffleArray(picked) : picked;
     if (!cards.length) return;
     setSessionModes(null); setMode(m); setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false);
+  };
+
+  const startTricky = () => {
+    if (trickyCards.length) startSession("flashcards", shuffleArray(trickyCards).slice(0, SESSION_SIZE));
   };
 
   // The Progress page can request a "review my weakest words" session.
@@ -593,7 +598,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const startMix = () => {
     primeSpeech();
     streakRef.current = 0;
-    const cards = selectSession(scopedPool, state.stats, mixCount, weakOnly);
+    const cards = selectSession(scopedPool, state.stats, mixCount, weakOnly, false, state.marked);
     if (!cards.length || mixSelected.size === 0) return;
     const chosen = [...mixSelected];
     const modes = cards.map((c) => {
@@ -606,7 +611,14 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   };
 
   const handleResult = (id: string, correct: boolean) => {
+    // Detect a tricky word graduating: correct answer that reaches the release box.
+    const released = correct && state.marked.includes(id) && (state.stats[id]?.box ?? 0) + 1 >= MARK_RELEASE_BOX;
     setState((s) => recordResult(s, id, correct));
+    if (released) {
+      const card = session?.find((c) => c.id === id);
+      playEffect("achievement");
+      pushToast(`Memorized${card ? ` “${card.de}”` : ""} 🎉 — off your tricky list`);
+    }
     if (correct) setCorrectCount((c) => c + 1);
     else {
       const card = session?.find((c) => c.id === id);
@@ -669,7 +681,19 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
         <div className="session-bar">
           <button className="back-button" onClick={exit}><ChevronLeft size={18} /> Exit</button>
           <span className="session-title">{sessionTitle}</span>
-          {activeMode !== "match" && <span className="session-count">{index + 1} / {total}</span>}
+          {activeMode !== "match" && (
+            <div className="session-bar-end">
+              <button
+                className={`mark-btn ${state.marked.includes(session[index].id) ? "on" : ""}`}
+                onClick={() => setState((s) => toggleMarked(s, session[index].id))}
+                aria-pressed={state.marked.includes(session[index].id)}
+                title="Mark as tricky — keep practising it until it sticks"
+              >
+                <Star size={15} /> {state.marked.includes(session[index].id) ? "Tricky" : "Mark"}
+              </button>
+              <span className="session-count">{index + 1} / {total}</span>
+            </div>
+          )}
         </div>
         {activeMode !== "match" && (
           <div className="session-progress"><div style={{ width: `${(index / total) * 100}%` }} /></div>
@@ -724,6 +748,9 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
         <span className="pmeta"><Flame size={15} /> {streakDays} day{streakDays === 1 ? "" : "s"}</span>
         <button className="review-btn" disabled={dueCount === 0} onClick={() => startSession("flashcards", undefined, true)}>
           <RotateCcw size={15} /> {dueCount > 0 ? `Review ${dueCount} due` : "All caught up"}
+        </button>
+        <button className="review-btn tricky" disabled={trickyCards.length === 0} onClick={startTricky}>
+          <Star size={15} /> {trickyCards.length > 0 ? `Tricky ${trickyCards.length}` : "No tricky words"}
         </button>
       </div>
 

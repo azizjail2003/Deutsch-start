@@ -26,11 +26,12 @@ export type PracticeState = {
   sessions: number;
   days: string[]; // ISO dates (YYYY-MM-DD) on which the learner practised
   badges: string[]; // earned badge ids
+  marked: string[]; // card ids the learner flagged as "I keep forgetting this"
 };
 
 export const emptyStat: CardStat = { seen: 0, correct: 0, box: 0, due: 0, lastWrong: false };
 
-export const initialPracticeState = (): PracticeState => ({ studiedUpTo: null, stats: {}, xp: 0, sessions: 0, days: [], badges: [] });
+export const initialPracticeState = (): PracticeState => ({ studiedUpTo: null, stats: {}, xp: 0, sessions: 0, days: [], badges: [], marked: [] });
 
 export function loadPracticeState(): PracticeState {
   if (typeof window === "undefined") return initialPracticeState();
@@ -45,6 +46,7 @@ export function loadPracticeState(): PracticeState {
       sessions: parsed.sessions ?? 0,
       days: parsed.days ?? [],
       badges: parsed.badges ?? [],
+      marked: parsed.marked ?? [],
     };
   } catch {
     return initialPracticeState();
@@ -89,6 +91,19 @@ const BOX_DAYS = [0, 1, 2, 4, 9, 21]; // Leitner review intervals (days)
 const KNOWN_BOX = 4;
 const DAY_MS = 86400000;
 const XP_PER_CORRECT = 2;
+// A marked ("tricky") word auto-releases once recalled correctly this many
+// times in a row (box counts consecutive correct answers; a miss resets it).
+export const MARK_RELEASE_BOX = 3;
+
+export function isMarked(state: PracticeState, id: string): boolean {
+  return state.marked.includes(id);
+}
+export function toggleMarked(state: PracticeState, id: string): PracticeState {
+  const marked = state.marked.includes(id)
+    ? state.marked.filter((m) => m !== id)
+    : [...state.marked, id];
+  return { ...state, marked };
+}
 
 function normalizeStat(stat?: Partial<CardStat> & { streak?: number }): CardStat {
   if (!stat) return { ...emptyStat };
@@ -121,11 +136,16 @@ export function recordResult(state: PracticeState, id: string, correct: boolean)
   };
   const today = new Date().toISOString().slice(0, 10);
   const days = state.days.includes(today) ? state.days : [...state.days, today];
+  // Auto-release a tricky word once it's been recalled correctly enough in a row.
+  const marked = correct && box >= MARK_RELEASE_BOX && state.marked.includes(id)
+    ? state.marked.filter((m) => m !== id)
+    : state.marked;
   return {
     ...state,
     stats: { ...state.stats, [id]: next },
     xp: state.xp + (correct ? XP_PER_CORRECT : 0),
     days,
+    marked,
   };
 }
 
@@ -207,24 +227,40 @@ export function selectSession(
   count: number,
   weakOnly = false,
   reviewOnly = false,
+  marked: string[] = [],
+  markedOnly = false,
 ): FlashcardWithMeta[] {
+  const markedSet = new Set(marked);
+  if (markedOnly) {
+    return shuffle(pool.filter((c) => markedSet.has(c.id))).slice(0, Math.min(count, pool.length));
+  }
+  let ordered: FlashcardWithMeta[];
   if (reviewOnly) {
     const now = Date.now();
-    const due = pool.filter((c) => { const s = normalizeStat(stats[c.id]); return s.seen === 0 || s.due <= now; });
+    // Marked words are always considered due, so they keep coming back.
+    const due = pool.filter((c) => { const s = normalizeStat(stats[c.id]); return s.seen === 0 || s.due <= now || markedSet.has(c.id); });
     due.sort((a, b) => normalizeStat(stats[a.id]).due - normalizeStat(stats[b.id]).due);
-    return due.slice(0, Math.min(count, due.length));
+    ordered = due;
+  } else {
+    const source = weakOnly ? pool.filter((c) => masteryOf(stats[c.id]) !== "known") : pool;
+    const wrong: FlashcardWithMeta[] = [];
+    const fresh: FlashcardWithMeta[] = [];
+    const rest: FlashcardWithMeta[] = [];
+    for (const card of source) {
+      const stat = stats[card.id];
+      if (stat?.lastWrong) wrong.push(card);
+      else if (!stat || stat.seen === 0) fresh.push(card);
+      else rest.push(card);
+    }
+    ordered = [...shuffle(wrong), ...shuffle(fresh), ...shuffle(rest)];
   }
-  const source = weakOnly ? pool.filter((c) => masteryOf(stats[c.id]) !== "known") : pool;
-  const wrong: FlashcardWithMeta[] = [];
-  const fresh: FlashcardWithMeta[] = [];
-  const rest: FlashcardWithMeta[] = [];
-  for (const card of source) {
-    const stat = stats[card.id];
-    if (stat?.lastWrong) wrong.push(card);
-    else if (!stat || stat.seen === 0) fresh.push(card);
-    else rest.push(card);
+  // Lead with up to half the session's worth of tricky words so they recur
+  // often, without crowding out new and review cards entirely.
+  if (markedSet.size) {
+    const lead = ordered.filter((c) => markedSet.has(c.id)).slice(0, Math.max(1, Math.ceil(count / 2)));
+    const leadIds = new Set(lead.map((c) => c.id));
+    ordered = [...lead, ...ordered.filter((c) => !leadIds.has(c.id))];
   }
-  const ordered = [...shuffle(wrong), ...shuffle(fresh), ...shuffle(rest)];
   return ordered.slice(0, Math.min(count, ordered.length));
 }
 
