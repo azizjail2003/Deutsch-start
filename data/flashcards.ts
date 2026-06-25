@@ -1649,6 +1649,8 @@ const a2Decks: RawDeck[] = [
       { de: "gab (← geben)", en: "gave", type: "verb", example: "Sie gab mir das Buch.", exampleEn: "She gave me the book." },
       { de: "nahm (← nehmen)", en: "took", type: "verb" },
       { de: "fand (← finden)", en: "found", type: "verb", example: "Ich fand den Film gut.", exampleEn: "I found the film good." },
+      { de: "singen", en: "to sing", type: "verb", example: "Wir sangen ein Lied.", exampleEn: "We sang a song.", note: "Irregular: sang, hat gesungen." },
+      { de: "riechen", en: "to smell", type: "verb", example: "Die Blumen riechen gut.", exampleEn: "The flowers smell good.", note: "Irregular: roch, hat gerochen." },
     ],
   },
   {
@@ -1660,6 +1662,8 @@ const a2Decks: RawDeck[] = [
       { de: "Als wir uns trafen, war es Winter.", en: "When we met, it was winter.", type: "phrase" },
       { de: "als vs. wenn", en: "als = one past event; wenn = repeated/present", type: "other", note: "Immer wenn = whenever (repeated)." },
       { de: "sich treffen", en: "to meet (each other)", type: "verb", example: "Wir treffen uns um acht.", exampleEn: "We're meeting at eight." },
+      { de: "verlieren", en: "to lose", type: "verb", example: "Ich habe mein Gepäck verloren.", exampleEn: "I lost my luggage.", note: "Irregular: verlor, hat verloren." },
+      { de: "anders", en: "differently / different", type: "adverb", example: "Du hast alles anders gemacht.", exampleEn: "You did everything differently." },
     ],
   },
   {
@@ -1672,6 +1676,10 @@ const a2Decks: RawDeck[] = [
       { de: "draußen", en: "outside", type: "adverb", example: "Die Kinder spielen draußen.", exampleEn: "The children are playing outside." },
       { de: "Ich war ein ruhiges Kind.", en: "I was a quiet child.", type: "phrase" },
       { de: "ruhig", en: "quiet / calm", type: "adjective" },
+      { de: "scheu", en: "shy / timid", type: "adjective", example: "Als Kind war ich scheu.", exampleEn: "As a child I was shy." },
+      { de: "allein", en: "alone", type: "adverb", example: "Ich durfte nicht allein ausgehen.", exampleEn: "I wasn't allowed to go out alone." },
+      { de: "ausgehen", en: "to go out", type: "verb", example: "Am Wochenende gehe ich gern aus.", exampleEn: "At the weekend I like to go out.", note: "Separable: geht … aus." },
+      { de: "rennen", en: "to run", type: "verb", example: "Die Kinder rennen im Park.", exampleEn: "The children run in the park.", note: "Irregular: rannte, ist gerannt." },
     ],
   },
   {
@@ -1684,6 +1692,10 @@ const a2Decks: RawDeck[] = [
       { de: "der Vorteil", en: "the advantage", type: "noun", plural: "die Vorteile" },
       { de: "der Nachteil", en: "the disadvantage", type: "noun", plural: "die Nachteile" },
       { de: "die Umgebung", en: "the surroundings / area", type: "noun", plural: "die Umgebungen" },
+      { de: "der Verkehr", en: "the traffic / transport", type: "noun", example: "Auf dem Land gibt es kaum öffentlichen Verkehr.", exampleEn: "In the countryside there's hardly any public transport.", note: "Usually no plural." },
+      { de: "die Möglichkeit", en: "the possibility / opportunity", type: "noun", plural: "die Möglichkeiten", example: "Die Stadt bietet viele Möglichkeiten.", exampleEn: "The city offers many opportunities." },
+      { de: "das Nachtleben", en: "the nightlife", type: "noun", example: "Die Stadt hat ein schönes Nachtleben.", exampleEn: "The city has a nice nightlife.", note: "Usually no plural." },
+      { de: "die Kriminalität", en: "the crime", type: "noun", example: "In großen Städten gibt es mehr Kriminalität.", exampleEn: "There's more crime in big cities.", note: "Usually no plural." },
     ],
   },
   {
@@ -1696,6 +1708,9 @@ const a2Decks: RawDeck[] = [
       { de: "Ich habe vergessen, dich anzurufen.", en: "I forgot to call you.", type: "phrase", note: "Separable verb: an + zu + rufen → anzurufen." },
       { de: "versuchen", en: "to try", type: "verb" },
       { de: "vorhaben", en: "to plan / intend", type: "verb", example: "Ich habe vor, nach Deutschland zu gehen.", exampleEn: "I plan to go to Germany." },
+      { de: "bitten", en: "to ask / request", type: "verb", example: "Er bittet mich, ihn morgen zu besuchen.", exampleEn: "He asks me to visit him tomorrow.", note: "bitten um + accusative; Irregular: bat, hat gebeten." },
+      { de: "erlauben", en: "to allow / permit", type: "verb", example: "Er erlaubt mir, hier zu bleiben.", exampleEn: "He allows me to stay here.", note: "Takes the dative for the person." },
+      { de: "versprechen", en: "to promise", type: "verb", example: "Ich verspreche, pünktlich zu sein.", exampleEn: "I promise to be on time.", note: "e → i: du versprichst." },
     ],
   },
   {
