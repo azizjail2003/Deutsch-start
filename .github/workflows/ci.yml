@@ -20,7 +20,7 @@ jobs:
       # Reads the pnpm version from the "packageManager" field in package.json,
       # so the version is pinned in exactly one place.
       - name: Install pnpm
-        uses: pnpm/action-setup@v7
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js 22
         uses: actions/setup-node@v6
