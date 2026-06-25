@@ -1862,6 +1862,11 @@ const a2Decks: RawDeck[] = [
       { de: "backen", en: "to bake", type: "verb", example: "30 Minuten backen.", exampleEn: "Bake for 30 minutes." },
       { de: "zum Schluss", en: "finally / at the end", type: "phrase" },
       { de: "der Löffel", en: "the spoon / spoonful", type: "noun", plural: "die Löffel" },
+      { de: "die Zubereitung", en: "the preparation (cooking)", type: "noun", example: "Die Zubereitung dauert 30 Minuten.", exampleEn: "The preparation takes 30 minutes." },
+      { de: "schälen", en: "to peel", type: "verb", example: "Kartoffeln waschen und schälen.", exampleEn: "Wash and peel the potatoes." },
+      { de: "der Ofen", en: "the oven", type: "noun", plural: "die Öfen", example: "Der Ofen wird auf 200 Grad erhitzt.", exampleEn: "The oven is heated to 200 degrees." },
+      { de: "der Esslöffel", en: "the tablespoon (EL)", type: "noun", plural: "die Esslöffel", note: "der Teelöffel = teaspoon (TL)." },
+      { de: "als Nächstes", en: "next / as the next step", type: "phrase", example: "Als Nächstes wird der Ofen vorgeheizt.", exampleEn: "Next, the oven is preheated." },
     ],
   },
   {
@@ -1874,6 +1879,8 @@ const a2Decks: RawDeck[] = [
       { de: "Wir könnten essen gehen.", en: "We could go out to eat.", type: "phrase" },
       { de: "der Vorschlag", en: "the suggestion", type: "noun", plural: "die Vorschläge" },
       { de: "vorschlagen", en: "to suggest", type: "verb", example: "Ich schlage vor, dass wir warten.", exampleEn: "I suggest that we wait." },
+      { de: "raten", en: "to advise / to guess", type: "verb", example: "Ich kann dir nur raten zu warten.", exampleEn: "I can only advise you to wait.", note: "Takes the dative for the person; irregular: rät." },
+      { de: "An deiner Stelle …", en: "If I were you …", type: "phrase", example: "An deiner Stelle würde ich gehen.", exampleEn: "If I were you, I would go." },
     ],
   },
   {
@@ -1886,6 +1893,9 @@ const a2Decks: RawDeck[] = [
       { de: "Können wir den Termin verschieben?", en: "Can we postpone the appointment?", type: "question" },
       { de: "Melde dich!", en: "Get in touch! / Let me know!", type: "phrase" },
       { de: "Bis dann!", en: "See you then!", type: "phrase" },
+      { de: "unternehmen", en: "to do something / undertake", type: "verb", example: "Möchtest du heute etwas unternehmen?", exampleEn: "Do you want to do something today?", note: "Irregular: unternimmt, hat unternommen." },
+      { de: "das Treffen", en: "the meeting / get-together", type: "noun", plural: "die Treffen", example: "Das Treffen ist um 17 Uhr.", exampleEn: "The meeting is at 5 p.m." },
+      { de: "unterwegs", en: "on the way / out and about", type: "adverb", example: "Ich bin gerade in der Stadt unterwegs.", exampleEn: "I'm out and about in town right now." },
     ],
   },
   {
@@ -1900,6 +1910,10 @@ const a2Decks: RawDeck[] = [
       { de: "traurig", en: "sad", type: "adjective" },
       { de: "wütend", en: "angry / furious", type: "adjective" },
       { de: "enttäuscht", en: "disappointed", type: "adjective" },
+      { de: "froh", en: "glad / happy", type: "adjective", example: "Ich bin froh, dass du da bist.", exampleEn: "I'm glad that you're here." },
+      { de: "egal", en: "all the same / doesn't matter", type: "adjective", example: "Das ist mir egal.", exampleEn: "I don't mind / It doesn't matter to me." },
+      { de: "sprachlos", en: "speechless", type: "adjective", example: "Ich bin sprachlos!", exampleEn: "I'm speechless!" },
+      { de: "die Überraschung", en: "the surprise", type: "noun", plural: "die Überraschungen", example: "So eine Überraschung!", exampleEn: "What a surprise!" },
     ],
   },
   {
@@ -1913,6 +1927,9 @@ const a2Decks: RawDeck[] = [
       { de: "das Gehalt", en: "the salary", type: "noun", plural: "die Gehälter" },
       { de: "die Stelle", en: "the position / job", type: "noun", plural: "die Stellen" },
       { de: "der Lebenslauf", en: "the CV / résumé", type: "noun", plural: "die Lebensläufe" },
+      { de: "ausüben", en: "to practise (a profession)", type: "verb", example: "Welchen Beruf möchtest du ausüben?", exampleEn: "Which profession would you like to practise?" },
+      { de: "die Tätigkeit", en: "the activity / occupation", type: "noun", plural: "die Tätigkeiten", example: "Die Tätigkeit ist sehr abwechslungsreich.", exampleEn: "The work is very varied." },
+      { de: "der Journalist", en: "the journalist", type: "noun", plural: "die Journalisten", example: "Als Journalist wäre ich viel unterwegs.", exampleEn: "As a journalist I'd be travelling a lot." },
     ],
   },
   {
