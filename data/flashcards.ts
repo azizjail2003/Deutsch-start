@@ -1142,6 +1142,8 @@ const a1Decks: RawDeck[] = [
       { de: "die Tablette", en: "the pill / tablet", type: "noun", plural: "die Tabletten", example: "Nehmen Sie die Tabletten.", exampleEn: "Take the tablets." },
       { de: "sich ausruhen", en: "to rest", type: "verb", example: "Ruhen Sie sich aus.", exampleEn: "Get some rest." },
       { de: "Gute Besserung!", en: "Get well soon!", type: "phrase" },
+      { de: "der Blutdruck", en: "the blood pressure", type: "noun", example: "Der Arzt misst den Blutdruck.", exampleEn: "The doctor measures the blood pressure.", note: "Usually no plural." },
+      { de: "die Arbeitsunfähigkeitsbescheinigung", en: "the sick note (certificate of incapacity)", type: "noun", note: "Often shortened to die AU; given by the doctor for the employer." },
     ],
   },
   {
@@ -1157,6 +1159,10 @@ const a1Decks: RawDeck[] = [
       { de: "Sehr geehrte Damen und Herren,", en: "Dear Sir or Madam, (formal)", type: "phrase", note: "Formal letter opening." },
       { de: "Mit freundlichen Grüßen", en: "Kind regards (formal closing)", type: "phrase" },
       { de: "buchen", en: "to book", type: "verb", example: "Ich buche das Hotel online.", exampleEn: "I'm booking the hotel online." },
+      { de: "die Jugendherberge", en: "the youth hostel", type: "noun", plural: "die Jugendherbergen" },
+      { de: "die Halbpension", en: "the half board", type: "noun", example: "Ich brauche ein Zimmer mit Halbpension.", exampleEn: "I need a room with half board." },
+      { de: "empfehlen", en: "to recommend", type: "verb", example: "Können Sie uns ein Hotel empfehlen?", exampleEn: "Can you recommend us a hotel?", note: "e → ie: du empfiehlst, er empfiehlt." },
+      { de: "pro Nacht", en: "per night", type: "phrase", example: "Wie viel kostet es pro Nacht?", exampleEn: "How much does it cost per night?" },
     ],
   },
   {
@@ -1172,6 +1178,11 @@ const a1Decks: RawDeck[] = [
       { de: "die Staatsangehörigkeit", en: "the nationality", type: "noun", plural: "die Staatsangehörigkeiten" },
       { de: "die Unterschrift", en: "the signature", type: "noun", plural: "die Unterschriften" },
       { de: "unterschreiben", en: "to sign", type: "verb", example: "Bitte hier unterschreiben.", exampleEn: "Please sign here." },
+      { de: "das Geschlecht", en: "the gender / sex", type: "noun", plural: "die Geschlechter", note: "On forms: männlich / weiblich / divers." },
+      { de: "der Ort", en: "the place / town", type: "noun", plural: "die Orte", example: "Geburtsort: Berlin", exampleEn: "Place of birth: Berlin" },
+      { de: "die Postleitzahl", en: "the postcode (PLZ)", type: "noun", plural: "die Postleitzahlen", example: "Die Postleitzahl ist 12345.", exampleEn: "The postcode is 12345." },
+      { de: "die Telefonnummer", en: "the phone number", type: "noun", plural: "die Telefonnummern" },
+      { de: "die E-Mail-Adresse", en: "the email address", type: "noun", plural: "die E-Mail-Adressen" },
     ],
   },
   {
@@ -1187,6 +1198,10 @@ const a1Decks: RawDeck[] = [
       { de: "der Absender", en: "the sender", type: "noun", plural: "die Absender" },
       { de: "der Empfänger", en: "the recipient", type: "noun", plural: "die Empfänger" },
       { de: "abholen", en: "to pick up / collect", type: "verb", example: "Ich hole das Paket ab.", exampleEn: "I'm picking up the parcel." },
+      { de: "das Einschreiben", en: "the registered letter", type: "noun", plural: "die Einschreiben", example: "Ich möchte den Brief als Einschreiben schicken.", exampleEn: "I'd like to send the letter as registered mail." },
+      { de: "das Päckchen", en: "the small parcel", type: "noun", plural: "die Päckchen", note: "Smaller than ein Paket." },
+      { de: "der Schalter", en: "the counter (service desk)", type: "noun", plural: "die Schalter", example: "Gehen Sie zum Schalter 3.", exampleEn: "Go to counter 3." },
+      { de: "der Paketbote", en: "the parcel delivery person", type: "noun", plural: "die Paketboten" },
     ],
   },
   {
@@ -1202,6 +1217,12 @@ const a1Decks: RawDeck[] = [
       { de: "einzahlen", en: "to deposit", type: "verb", example: "Ich zahle Geld ein.", exampleEn: "I'm depositing money." },
       { de: "der Ausweis", en: "the ID card", type: "noun", plural: "die Ausweise", example: "Ihren Ausweis, bitte.", exampleEn: "Your ID, please." },
       { de: "die Geheimzahl", en: "the PIN", type: "noun", plural: "die Geheimzahlen" },
+      { de: "das Girokonto", en: "the current / checking account", type: "noun", plural: "die Girokonten", example: "Ich möchte ein Girokonto eröffnen.", exampleEn: "I'd like to open a current account." },
+      { de: "eröffnen", en: "to open (an account)", type: "verb", example: "Wenn man neu in Deutschland ist, eröffnet man ein Konto.", exampleEn: "When you're new in Germany, you open an account." },
+      { de: "der Kontoinhaber", en: "the account holder", type: "noun", plural: "die Kontoinhaber" },
+      { de: "der Kontoauszug", en: "the bank statement", type: "noun", plural: "die Kontoauszüge", example: "Wo kann ich den Kontoauszug drucken?", exampleEn: "Where can I print the bank statement?" },
+      { de: "der Geldautomat", en: "the cash machine / ATM", type: "noun", plural: "die Geldautomaten", example: "Ich hebe am Geldautomaten Geld ab.", exampleEn: "I withdraw money at the ATM." },
+      { de: "die Kreditkarte", en: "the credit card", type: "noun", plural: "die Kreditkarten" },
     ],
   },
   {
@@ -1217,6 +1238,7 @@ const a1Decks: RawDeck[] = [
       { de: "die Besichtigung", en: "the viewing", type: "noun", plural: "die Besichtigungen" },
       { de: "der Vermieter", en: "the landlord", type: "noun", plural: "die Vermieter" },
       { de: "Es gibt …", en: "There is / are …", type: "phrase", example: "Es gibt einen Balkon.", exampleEn: "There is a balcony." },
+      { de: "die Anzeige", en: "the advertisement / listing", type: "noun", plural: "die Anzeigen", example: "Ich habe die Wohnung in einer Anzeige gefunden.", exampleEn: "I found the flat in a listing." },
     ],
   },
   {
@@ -1233,6 +1255,8 @@ const a1Decks: RawDeck[] = [
       { de: "hin und zurück", en: "round trip (there and back)", type: "phrase", example: "Einmal Berlin, hin und zurück.", exampleEn: "One round trip to Berlin." },
       { de: "der Zug", en: "the train", type: "noun", plural: "die Züge" },
       { de: "die Verspätung", en: "the delay", type: "noun", plural: "die Verspätungen", example: "Der Zug hat Verspätung.", exampleEn: "The train is delayed." },
+      { de: "der Fahrplan", en: "the timetable / schedule", type: "noun", plural: "die Fahrpläne", example: "Wann fährt der Zug? Schau in den Fahrplan.", exampleEn: "When does the train leave? Check the timetable." },
+      { de: "das Ticket", en: "the ticket", type: "noun", plural: "die Tickets", note: "Also die Fahrkarte for trains/buses." },
     ],
   },
 ];
