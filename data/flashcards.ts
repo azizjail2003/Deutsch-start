@@ -1723,6 +1723,9 @@ const a2Decks: RawDeck[] = [
       { de: "Ich sehe ihn arbeiten.", en: "I see him working.", type: "phrase" },
       { de: "Ich lasse das Auto reparieren.", en: "I'm having the car repaired.", type: "phrase", note: "lassen + bare infinitive." },
       { de: "Ich bleibe lieber sitzen.", en: "I'd rather stay seated.", type: "phrase" },
+      { de: "fühlen", en: "to feel", type: "verb", example: "Er fühlte sein Herz schlagen.", exampleEn: "He felt his heart beating." },
+      { de: "erfahren", en: "to find out / learn", type: "verb", example: "Ich habe neulich erfahren, dass er umzieht.", exampleEn: "I recently found out that he's moving.", note: "Irregular: erfuhr, hat erfahren." },
+      { de: "erkennen", en: "to recognise", type: "verb", example: "Ich habe dich sofort erkannt.", exampleEn: "I recognised you immediately.", note: "Irregular: erkannte, hat erkannt." },
     ],
   },
   {
@@ -1734,6 +1737,7 @@ const a2Decks: RawDeck[] = [
       { de: "Sie war schon gegangen.", en: "She had already left.", type: "phrase", note: "Movement verbs use war." },
       { de: "Als ich ankam, hatte der Film schon angefangen.", en: "When I arrived, the film had already started.", type: "phrase" },
       { de: "schon", en: "already", type: "adverb" },
+      { de: "zuvor", en: "before / previously", type: "adverb", example: "Sie waren zuvor im Büro.", exampleEn: "They had been at the office before." },
     ],
   },
   {
@@ -1744,6 +1748,8 @@ const a2Decks: RawDeck[] = [
       { de: "seitdem", en: "since (then)", type: "other", example: "Seitdem ich hier wohne, bin ich glücklich.", exampleEn: "Since I've lived here, I've been happy." },
       { de: "Nachdem der Film zu Ende war, gingen wir nach Hause.", en: "After the film ended, we went home.", type: "phrase" },
       { de: "Seitdem", en: "since then (as an adverb)", type: "adverb", example: "Seitdem habe ich ihn nicht gesehen.", exampleEn: "Since then I haven't seen him." },
+      { de: "umziehen", en: "to move (house)", type: "verb", example: "Seitdem sie in die Stadt umgezogen ist, geht es ihr besser.", exampleEn: "Since she moved to the city, she's doing better.", note: "Separable, with sein: ist umgezogen." },
+      { de: "sich verändern", en: "to change (oneself)", type: "verb", example: "Er hat sich völlig verändert.", exampleEn: "He has changed completely." },
     ],
   },
   {
@@ -1758,6 +1764,10 @@ const a2Decks: RawDeck[] = [
       { de: "Das Bild hängt an der Wand.", en: "The picture hangs on the wall. (dat)", type: "phrase" },
       { de: "zwischen", en: "between", type: "other", example: "Die Lampe steht zwischen den Fenstern.", exampleEn: "The lamp stands between the windows." },
       { de: "die Wechselpräpositionen", en: "the two-way prepositions", type: "noun", note: "an, auf, hinter, in, neben, über, unter, vor, zwischen." },
+      { de: "hängen", en: "to hang", type: "verb", example: "Sie hängt das Bild an die Wand.", exampleEn: "She hangs the picture on the wall." },
+      { de: "die Wand", en: "the wall", type: "noun", plural: "die Wände", example: "Das Bild hängt an der Wand.", exampleEn: "The picture hangs on the wall." },
+      { de: "der Schrank", en: "the cupboard / wardrobe", type: "noun", plural: "die Schränke", example: "Die Jacke ist im Schrank.", exampleEn: "The jacket is in the wardrobe." },
+      { de: "das Regal", en: "the shelf / bookcase", type: "noun", plural: "die Regale", example: "Das Buch steht im Regal.", exampleEn: "The book is on the shelf." },
     ],
   },
   {
