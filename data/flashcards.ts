@@ -987,6 +987,12 @@ const a1Decks: RawDeck[] = [
       { de: "Viele Grüße", en: "Best wishes (informal closing)", type: "phrase" },
       { de: "zusagen", en: "to accept (an invitation)", type: "verb", example: "Ich sage gern zu.", exampleEn: "I gladly accept." },
       { de: "absagen", en: "to decline", type: "verb", example: "Leider muss ich absagen.", exampleEn: "Unfortunately I have to decline." },
+      { de: "Vielen Dank für die Einladung!", en: "Thank you for the invitation!", type: "phrase" },
+      { de: "Viel Spaß!", en: "Have fun!", type: "phrase", example: "Ich wünsche dir viel Spaß!", exampleEn: "I wish you lots of fun!" },
+      { de: "bis bald", en: "see you soon", type: "phrase", example: "Viele Grüße und bis bald!", exampleEn: "Best wishes and see you soon!" },
+      { de: "mitbringen", en: "to bring (along)", type: "verb", example: "Ich bringe gern einen Kuchen mit.", exampleEn: "I'll gladly bring a cake.", note: "Separable: bringe … mit." },
+      { de: "der Kuchen", en: "the cake", type: "noun", plural: "die Kuchen", example: "Ich backe einen Kuchen.", exampleEn: "I'm baking a cake." },
+      { de: "die Prüfung", en: "the exam / test", type: "noun", plural: "die Prüfungen", example: "Ich habe am Montag eine Prüfung.", exampleEn: "I have an exam on Monday." },
     ],
   },
   {
@@ -1002,6 +1008,9 @@ const a1Decks: RawDeck[] = [
       { de: "Das gefällt mir.", en: "I like that.", type: "phrase" },
       { de: "das Hobby", en: "the hobby", type: "noun", plural: "die Hobbys", example: "Mein Hobby ist Lesen.", exampleEn: "My hobby is reading." },
       { de: "Ich hasse …", en: "I hate …", type: "phrase", example: "Ich hasse Montage.", exampleEn: "I hate Mondays." },
+      { de: "toll", en: "great / fantastic", type: "adjective", example: "Das ist ganz toll!", exampleEn: "That's really great!" },
+      { de: "hässlich", en: "ugly", type: "adjective", example: "Das finde ich hässlich.", exampleEn: "I think that's ugly." },
+      { de: "überhaupt nicht", en: "not at all", type: "phrase", example: "Das gefällt mir überhaupt nicht!", exampleEn: "I don't like that at all!" },
     ],
   },
   {
@@ -1016,6 +1025,9 @@ const a1Decks: RawDeck[] = [
       { de: "Welches Hemd gefällt dir?", en: "Which shirt do you like?", type: "question" },
       { de: "die Farbe", en: "the colour", type: "noun", plural: "die Farben" },
       { de: "die Größe", en: "the size", type: "noun", plural: "die Größen" },
+      { de: "die Blume", en: "the flower", type: "noun", plural: "die Blumen", example: "Welche Blumen möchtest du kaufen?", exampleEn: "Which flowers would you like to buy?" },
+      { de: "der Hut", en: "the hat", type: "noun", plural: "die Hüte", example: "Welcher Hut gehört dir?", exampleEn: "Which hat is yours?" },
+      { de: "der Stift", en: "the pen", type: "noun", plural: "die Stifte", example: "Welcher Stift gehört dir?", exampleEn: "Which pen is yours?" },
     ],
   },
   {
