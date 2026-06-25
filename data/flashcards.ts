@@ -2337,6 +2337,9 @@ const b1Decks: RawDeck[] = [
       { de: "Über eine baldige Antwort würde ich mich freuen.", en: "I would appreciate a prompt reply.", type: "phrase" },
       { de: "Mit freundlichen Grüßen", en: "Kind regards", type: "phrase" },
       { de: "sich wenden an", en: "to turn to / contact", type: "verb" },
+      { de: "der Ausflug", en: "the excursion / trip", type: "noun", plural: "die Ausflüge", example: "Vielen Dank für die Einladung zum Ausflug.", exampleEn: "Thank you for the invitation to the trip." },
+      { de: "die Anrede", en: "the salutation / form of address", type: "noun", plural: "die Anreden", note: "e.g. „Sehr geehrte Frau …“ at the start of a letter." },
+      { de: "berichten", en: "to report / tell", type: "verb", example: "Berichten Sie, warum Sie nicht kommen können.", exampleEn: "Explain why you can't come." },
     ],
   },
   {
@@ -2350,6 +2353,10 @@ const b1Decks: RawDeck[] = [
       { de: "Ich bin anderer Meinung.", en: "I disagree / I have a different opinion.", type: "phrase" },
       { de: "Zusammenfassend kann man sagen, …", en: "In summary, one can say …", type: "phrase" },
       { de: "die Meinung", en: "the opinion", type: "noun", plural: "die Meinungen" },
+      { de: "die Ansicht", en: "the view / opinion", type: "noun", plural: "die Ansichten", example: "Ich bin der Ansicht, dass …", exampleEn: "I'm of the view that …" },
+      { de: "der Standpunkt", en: "the point of view / standpoint", type: "noun", plural: "die Standpunkte", example: "Ich vertrete den Standpunkt, dass …", exampleEn: "I take the position that …" },
+      { de: "der Eindruck", en: "the impression", type: "noun", plural: "die Eindrücke", example: "Ich habe den Eindruck, dass …", exampleEn: "I have the impression that …" },
+      { de: "äußern", en: "to express / voice", type: "verb", example: "Darf ich meine Meinung äußern?", exampleEn: "May I express my opinion?", note: "sich äußern zu = to comment on." },
     ],
   },
 ];
