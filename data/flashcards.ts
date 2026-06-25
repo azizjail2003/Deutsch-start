@@ -1792,6 +1792,7 @@ const a2Decks: RawDeck[] = [
       { de: "Ich würde gern bezahlen.", en: "I would like to pay.", type: "phrase" },
       { de: "Wäre es möglich, …?", en: "Would it be possible to …?", type: "question", example: "Wäre es möglich, später zu kommen?", exampleEn: "Would it be possible to come later?" },
       { de: "könnte", en: "could (Konjunktiv II of können)", type: "verb" },
+      { de: "der Gefallen", en: "the favour", type: "noun", example: "Könnten Sie mir einen Gefallen tun?", exampleEn: "Could you do me a favour?", note: "Usually no plural." },
     ],
   },
   {
@@ -1804,6 +1805,8 @@ const a2Decks: RawDeck[] = [
       { de: "in der Mitte", en: "in the middle", type: "phrase" },
       { de: "Man sieht …", en: "You can see … / One sees …", type: "phrase", example: "Man sieht zwei Kinder.", exampleEn: "You can see two children." },
       { de: "Es sieht so aus, als ob …", en: "It looks as if …", type: "phrase" },
+      { de: "zeigen", en: "to show", type: "verb", example: "Das Bild zeigt eine Frau am Flughafen.", exampleEn: "The picture shows a woman at the airport." },
+      { de: "die Szene", en: "the scene", type: "noun", plural: "die Szenen", example: "Was passiert in dieser Szene?", exampleEn: "What's happening in this scene?" },
     ],
   },
   {
@@ -1816,6 +1819,8 @@ const a2Decks: RawDeck[] = [
       { de: "der/die Angestellte", en: "the employee", type: "noun", plural: "die Angestellten" },
       { de: "das Beste", en: "the best (thing)", type: "noun", example: "Das Beste kommt noch.", exampleEn: "The best is yet to come." },
       { de: "das Wichtigste", en: "the most important thing", type: "noun", example: "Gesundheit ist das Wichtigste.", exampleEn: "Health is the most important thing." },
+      { de: "ähnlich", en: "similar", type: "adjective", example: "Wir haben etwas Ähnliches gesehen.", exampleEn: "We saw something similar." },
+      { de: "der Fremde", en: "the stranger", type: "noun", plural: "die Fremden", example: "Der fremde Mann ist ein Fremder.", exampleEn: "The unknown man is a stranger.", note: "Nominalized adjective; female: die Fremde." },
     ],
   },
   {
@@ -1828,6 +1833,8 @@ const a2Decks: RawDeck[] = [
       { de: "Die Rechnung wird bezahlt.", en: "The bill is being paid.", type: "phrase" },
       { de: "Das Zimmer wird geputzt.", en: "The room is being cleaned.", type: "phrase" },
       { de: "bauen", en: "to build", type: "verb" },
+      { de: "der Onkel", en: "the uncle", type: "noun", plural: "die Onkel", example: "Er holt morgen seinen Onkel ab.", exampleEn: "He's picking up his uncle tomorrow." },
+      { de: "der Vertrag", en: "the contract", type: "noun", plural: "die Verträge", example: "Der Mann unterschreibt den Vertrag.", exampleEn: "The man signs the contract." },
     ],
   },
   {
@@ -1839,6 +1846,9 @@ const a2Decks: RawDeck[] = [
       { de: "Der Brief ist geschickt worden.", en: "The letter has been sent.", type: "phrase", note: "Perfekt passive ends in … worden." },
       { de: "Die Tür konnte nicht geöffnet werden.", en: "The door couldn't be opened.", type: "phrase" },
       { de: "reparieren", en: "to repair", type: "verb", example: "Das Auto wird repariert.", exampleEn: "The car is being repaired." },
+      { de: "untersuchen", en: "to examine / investigate", type: "verb", example: "Der Arzt untersucht den alten Mann.", exampleEn: "The doctor examines the old man." },
+      { de: "der Mitarbeiter", en: "the employee / colleague", type: "noun", plural: "die Mitarbeiter", example: "Die Mitarbeiter helfen der Chefin.", exampleEn: "The employees help the boss." },
+      { de: "die Chefin", en: "the boss (female)", type: "noun", plural: "die Chefinnen", note: "Male: der Chef." },
     ],
   },
   {
