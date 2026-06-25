@@ -1518,6 +1518,9 @@ const a2Decks: RawDeck[] = [
       { de: "Während du schläfst, arbeite ich.", en: "While you sleep, I work.", type: "phrase" },
       { de: "Wir essen, bevor wir gehen.", en: "We eat before we go.", type: "phrase" },
       { de: "Ruf mich an, bevor du kommst.", en: "Call me before you come.", type: "phrase" },
+      { de: "heiraten", en: "to marry", type: "verb", example: "Bevor wir heiraten, müssen wir vieles klären.", exampleEn: "Before we marry, we have to sort out a lot." },
+      { de: "das Licht", en: "the light", type: "noun", plural: "die Lichter", example: "Ich schalte das Licht aus.", exampleEn: "I switch off the light." },
+      { de: "ausschalten", en: "to switch off / turn off", type: "verb", example: "Schalte den Fernseher aus!", exampleEn: "Turn off the TV!", note: "Separable: schaltet … aus. Opposite: einschalten." },
     ],
   },
   {
@@ -1530,6 +1533,8 @@ const a2Decks: RawDeck[] = [
       { de: "Ich habe einen Freund, der in Berlin wohnt.", en: "I have a friend who lives in Berlin.", type: "phrase" },
       { de: "Das ist die Frau, die Deutsch unterrichtet.", en: "That's the woman who teaches German.", type: "phrase" },
       { de: "unterrichten", en: "to teach", type: "verb" },
+      { de: "modern", en: "modern", type: "adjective", example: "Das Handy ist modern.", exampleEn: "The phone is modern." },
+      { de: "bekannt", en: "well-known / famous", type: "adjective", example: "Das Buch ist sehr bekannt.", exampleEn: "The book is very well-known." },
     ],
   },
   {
@@ -1541,6 +1546,8 @@ const a2Decks: RawDeck[] = [
       { de: "Die Frau, die ich gestern sah, ...", en: "The woman (whom) I saw yesterday …", type: "phrase" },
       { de: "Das ist der Film, den ich mag.", en: "That's the film (that) I like.", type: "phrase" },
       { de: "spannend", en: "exciting / thrilling", type: "adjective" },
+      { de: "gegen", en: "against", type: "other", example: "Wir sind gegen diese Politiker.", exampleEn: "We are against these politicians.", note: "Takes the accusative." },
+      { de: "der Politiker", en: "the politician", type: "noun", plural: "die Politiker" },
     ],
   },
   {
@@ -1552,6 +1559,7 @@ const a2Decks: RawDeck[] = [
       { de: "denen (Relativpronomen, Dativ Plural)", en: "to whom (plural, dat.)", type: "pronoun", example: "Die Leute, denen ich danke, ...", exampleEn: "The people whom I thank …" },
       { de: "Das ist der Kollege, dem ich vertraue.", en: "That's the colleague (whom) I trust.", type: "phrase" },
       { de: "vertrauen", en: "to trust", type: "verb", note: "Takes the dative." },
+      { de: "schenken", en: "to give (as a gift)", type: "verb", example: "Ich schenke ihnen Süßigkeiten.", exampleEn: "I give them sweets as a gift." },
     ],
   },
   {
