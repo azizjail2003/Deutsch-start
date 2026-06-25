@@ -444,6 +444,9 @@ const a1Decks: RawDeck[] = [
       { de: "die Minute", en: "the minute", type: "noun", plural: "die Minuten" },
       { de: "der Termin", en: "the appointment", type: "noun", plural: "die Termine", example: "Ich habe einen Termin um 10 Uhr.", exampleEn: "I have an appointment at 10." },
       { de: "Um wie viel Uhr?", en: "At what time?", type: "question", example: "Um wie viel Uhr beginnt der Kurs?", exampleEn: "At what time does the course start?" },
+      { de: "der Tag", en: "the day", type: "noun", plural: "die Tage", example: "Ein Tag hat 24 Stunden.", exampleEn: "A day has 24 hours." },
+      { de: "die Woche", en: "the week", type: "noun", plural: "die Wochen", example: "Eine Woche hat 7 Tage.", exampleEn: "A week has 7 days." },
+      { de: "die Sekunde", en: "the second", type: "noun", plural: "die Sekunden", example: "Eine Minute hat 60 Sekunden.", exampleEn: "A minute has 60 seconds." },
     ],
   },
   {
@@ -458,6 +461,10 @@ const a1Decks: RawDeck[] = [
       { de: "Es ist halb zehn.", en: "It's half past nine (9:30).", type: "phrase" },
       { de: "fünf nach drei", en: "five past three (3:05)", type: "phrase" },
       { de: "zwanzig vor sieben", en: "twenty to seven (6:40)", type: "phrase" },
+      { de: "kurz vor", en: "shortly before", type: "phrase", example: "Es ist kurz vor fünf.", exampleEn: "It's shortly before five." },
+      { de: "kurz nach", en: "shortly after", type: "phrase", example: "Es ist kurz nach halb zehn.", exampleEn: "It's shortly after half past nine." },
+      { de: "fast", en: "almost", type: "adverb", example: "Es ist fast fünf.", exampleEn: "It's almost five." },
+      { de: "gleich", en: "in a moment / right away", type: "adverb", example: "Es ist gleich fünf.", exampleEn: "It's nearly five." },
     ],
   },
   {
@@ -490,6 +497,8 @@ const a1Decks: RawDeck[] = [
       { de: "die Großeltern", en: "the grandparents", type: "noun", note: "Plural only." },
       { de: "die Oma", en: "the grandma", type: "noun", plural: "die Omas" },
       { de: "der Opa", en: "the grandpa", type: "noun", plural: "die Opas" },
+      { de: "der Großvater", en: "the grandfather", type: "noun", plural: "die Großväter", example: "Mein Großvater ist 80.", exampleEn: "My grandfather is 80." },
+      { de: "die Großmutter", en: "the grandmother", type: "noun", plural: "die Großmütter", example: "Meine Großmutter kocht gern.", exampleEn: "My grandmother likes to cook." },
     ],
   },
   {
@@ -505,6 +514,7 @@ const a1Decks: RawDeck[] = [
       { de: "das (Akkusativ)", en: "the (neuter, accusative — unchanged)", type: "article", example: "Ich lese das Buch.", exampleEn: "I'm reading the book." },
       { de: "der Apfel", en: "the apple", type: "noun", plural: "die Äpfel" },
       { de: "der Hund", en: "the dog", type: "noun", plural: "die Hunde" },
+      { de: "das Baby", en: "the baby", type: "noun", plural: "die Babys", example: "Wir haben ein Baby.", exampleEn: "We have a baby." },
     ],
   },
   {
@@ -520,6 +530,13 @@ const a1Decks: RawDeck[] = [
       { de: "der Schlüssel", en: "the key", type: "noun", plural: "die Schlüssel" },
       { de: "suchen", en: "to look for / to search", type: "verb", example: "Ich suche meine Brille.", exampleEn: "I'm looking for my glasses." },
       { de: "brauchen", en: "to need", type: "verb", example: "Ich brauche Hilfe.", exampleEn: "I need help." },
+      { de: "ihren", en: "her / their (masculine accusative)", type: "pronoun", example: "Sie findet ihren Freund nett.", exampleEn: "She finds her boyfriend nice." },
+      { de: "unseren", en: "our (masculine accusative)", type: "pronoun", example: "Wir lieben unseren Hund.", exampleEn: "We love our dog." },
+      { de: "euren", en: "your (plural, masculine accusative)", type: "pronoun", example: "Wie findet ihr euren Lehrer?", exampleEn: "How do you (all) find your teacher?" },
+      { de: "Ihren", en: "your (formal, masculine accusative)", type: "pronoun", example: "Ich mag Ihren Garten.", exampleEn: "I like your garden." },
+      { de: "lieben", en: "to love", type: "verb", example: "Ich liebe meine Kinder.", exampleEn: "I love my children." },
+      { de: "finden", en: "to find / to think (of)", type: "verb", example: "Wie findest du dein Haus?", exampleEn: "How do you like your house?" },
+      { de: "der Nachbar", en: "the neighbour", type: "noun", plural: "die Nachbarn", example: "Das sind ihre Nachbarn.", exampleEn: "Those are her neighbours." },
     ],
   },
   {
@@ -535,6 +552,7 @@ const a1Decks: RawDeck[] = [
       { de: "der Tee", en: "the tea", type: "noun", plural: "die Tees" },
       { de: "das Wasser", en: "the water", type: "noun", note: "Usually no plural." },
       { de: "trinken", en: "to drink", type: "verb", example: "Ich trinke gern Tee.", exampleEn: "I like drinking tea." },
+      { de: "die Cola", en: "the cola", type: "noun", plural: "die Colas", example: "Ich möchte eine Cola.", exampleEn: "I would like a cola." },
     ],
   },
   {
