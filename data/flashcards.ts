@@ -898,6 +898,9 @@ const a1Decks: RawDeck[] = [
       { de: "Ich bin nach Berlin gefahren.", en: "I went to Berlin.", type: "phrase" },
       { de: "Es war toll.", en: "It was great.", type: "phrase" },
       { de: "die Fotos machen", en: "to take photos", type: "phrase", example: "Wir haben viele Fotos gemacht.", exampleEn: "We took many photos." },
+      { de: "die Ferien", en: "the holidays / vacation", type: "noun", note: "Plural only: in den Ferien." },
+      { de: "übernachten", en: "to stay overnight", type: "verb", example: "Wir haben bei Bekannten übernachtet.", exampleEn: "We stayed overnight with acquaintances." },
+      { de: "der Bekannte", en: "the acquaintance", type: "noun", plural: "die Bekannten", example: "Wir wohnen bei Bekannten.", exampleEn: "We're staying with acquaintances." },
     ],
   },
   {
