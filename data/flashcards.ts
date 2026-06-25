@@ -2086,6 +2086,8 @@ const b1Decks: RawDeck[] = [
       { de: "zulassen", en: "to allow / permit", type: "verb", example: "Das System lässt das nicht zu.", exampleEn: "The system doesn't allow that." },
       { de: "entlassen", en: "to dismiss / lay off", type: "verb", example: "Die Firma hat ihn entlassen.", exampleEn: "The company laid him off." },
       { de: "überlassen", en: "to leave (sth to someone)", type: "verb", example: "Überlass das mir.", exampleEn: "Leave that to me." },
+      { de: "weglassen", en: "to leave out / omit", type: "verb", example: "Kann ich hier ein Komma weglassen?", exampleEn: "Can I leave out a comma here?", note: "Separable: lässt … weg." },
+      { de: "auslassen", en: "to skip / leave out", type: "verb", example: "Er ließ das Kapitel aus.", exampleEn: "He skipped the chapter.", note: "Separable: lässt … aus." },
     ],
   },
   {
@@ -2098,6 +2100,10 @@ const b1Decks: RawDeck[] = [
       { de: "der Mensch → den Menschen", en: "the human / person", type: "noun" },
       { de: "der Kollege → dem Kollegen", en: "the colleague", type: "noun", example: "Ich helfe dem Kollegen.", exampleEn: "I help the colleague." },
       { de: "der Name → des Namens", en: "the name (special: genitive -ns)", type: "noun" },
+      { de: "der Praktikant", en: "the intern / trainee", type: "noun", plural: "die Praktikanten", note: "N-declension: den/dem/des Praktikanten." },
+      { de: "der Präsident", en: "the president", type: "noun", plural: "die Präsidenten", note: "N-declension: den/dem/des Präsidenten." },
+      { de: "der Polizist", en: "the police officer", type: "noun", plural: "die Polizisten", note: "N-declension: den/dem/des Polizisten." },
+      { de: "der Experte", en: "the expert", type: "noun", plural: "die Experten", note: "N-declension: den/dem/des Experten." },
     ],
   },
   {
@@ -2110,6 +2116,8 @@ const b1Decks: RawDeck[] = [
       { de: "Wegen des Staus kam ich zu spät.", en: "Because of the traffic jam I was late.", type: "phrase" },
       { de: "Trotz der Kälte gehen wir raus.", en: "Despite the cold we're going out.", type: "phrase" },
       { de: "der Stau", en: "the traffic jam", type: "noun", plural: "die Staus" },
+      { de: "der Flug", en: "the flight", type: "noun", plural: "die Flüge", example: "Mein Flug wurde wegen Schnee umgeleitet.", exampleEn: "My flight was diverted because of snow." },
+      { de: "einschlafen", en: "to fall asleep", type: "verb", example: "Während des Unterrichts ist sie eingeschlafen.", exampleEn: "She fell asleep during the lesson.", note: "Separable, with sein: ist eingeschlafen." },
     ],
   },
   {
@@ -2122,6 +2130,9 @@ const b1Decks: RawDeck[] = [
       { de: "damit", en: "with it (mit + it)", type: "other", example: "Bist du damit einverstanden?", exampleEn: "Do you agree with it?" },
       { de: "Ich denke oft daran.", en: "I often think about it.", type: "phrase" },
       { de: "einverstanden", en: "in agreement / okay with it", type: "adjective" },
+      { de: "stolz", en: "proud", type: "adjective", example: "Er ist sehr stolz darauf.", exampleEn: "He is very proud of it.", note: "stolz auf + accusative." },
+      { de: "aufhören", en: "to stop / quit", type: "verb", example: "Rudi hat mit dem Rauchen aufgehört.", exampleEn: "Rudi has quit smoking.", note: "Separable: hört … auf. aufhören mit + dative." },
+      { de: "der Unfall", en: "the accident", type: "noun", plural: "die Unfälle", example: "Auf der Schillerstraße ist ein Unfall passiert.", exampleEn: "An accident happened on Schillerstraße." },
     ],
   },
   {
