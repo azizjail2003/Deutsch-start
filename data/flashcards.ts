@@ -584,6 +584,10 @@ const a1Decks: RawDeck[] = [
       { de: "das Trinkgeld", en: "the tip", type: "noun", plural: "die Trinkgelder" },
       { de: "Zusammen oder getrennt?", en: "Together or separately?", type: "question", note: "Asked when you pay." },
       { de: "Guten Appetit!", en: "Enjoy your meal!", type: "phrase" },
+      { de: "das Bier", en: "the beer", type: "noun", plural: "die Biere", example: "Ich nehme ein Bier.", exampleEn: "I'll have a beer." },
+      { de: "der Gast", en: "the guest", type: "noun", plural: "die Gäste", example: "Wir haben heute Gäste.", exampleEn: "We have guests today." },
+      { de: "Ich nehme …", en: "I'll have / take …", type: "phrase", example: "Ich nehme eine Cola.", exampleEn: "I'll have a cola." },
+      { de: "Was hätten Sie gern?", en: "What would you like?", type: "phrase", note: "Polite waiter's question." },
     ],
   },
   {
@@ -598,6 +602,7 @@ const a1Decks: RawDeck[] = [
       { de: "uns", en: "us", type: "pronoun", example: "Er besucht uns.", exampleEn: "He's visiting us." },
       { de: "euch", en: "you (plural, informal)", type: "pronoun", example: "Ich sehe euch morgen.", exampleEn: "I'll see you (all) tomorrow." },
       { de: "Sie", en: "you (formal)", type: "pronoun", example: "Ich verstehe Sie.", exampleEn: "I understand you." },
+      { de: "kennen", en: "to know (a person/place)", type: "verb", example: "Ich kenne sie.", exampleEn: "I know her.", note: "kennen = be acquainted with; wissen = know a fact." },
     ],
   },
   {
@@ -612,6 +617,9 @@ const a1Decks: RawDeck[] = [
       { de: "danken", en: "to thank", type: "verb", example: "Ich danke dem Lehrer.", exampleEn: "I thank the teacher.", note: "Takes the dative." },
       { de: "geben", en: "to give", type: "verb", example: "Ich gebe dem Kind einen Apfel.", exampleEn: "I give the child an apple." },
       { de: "gehören", en: "to belong to", type: "verb", example: "Das Buch gehört dem Lehrer.", exampleEn: "The book belongs to the teacher.", note: "Takes the dative." },
+      { de: "den (Dativ Plural)", en: "the (plural, dative)", type: "article", example: "Er gibt den Kindern Süßigkeiten.", exampleEn: "He gives the children sweets.", note: "die → den in the dative plural; noun adds -n." },
+      { de: "bringen", en: "to bring", type: "verb", example: "Er bringt einem Gast Kaffee.", exampleEn: "He brings a guest coffee." },
+      { de: "die Süßigkeit", en: "the sweet / candy", type: "noun", plural: "die Süßigkeiten", example: "Kinder mögen Süßigkeiten.", exampleEn: "Children like sweets." },
     ],
   },
   {
@@ -642,6 +650,8 @@ const a1Decks: RawDeck[] = [
       { de: "manchmal", en: "sometimes", type: "adverb", example: "Manchmal koche ich.", exampleEn: "Sometimes I cook." },
       { de: "immer", en: "always", type: "adverb", example: "Er ist immer pünktlich.", exampleEn: "He is always on time." },
       { de: "nie", en: "never", type: "adverb", example: "Ich trinke nie Kaffee.", exampleEn: "I never drink coffee." },
+      { de: "dauern", en: "to last / to take (time)", type: "verb", example: "Der Film dauert zwei Stunden.", exampleEn: "The film lasts two hours." },
+      { de: "nächste Woche", en: "next week", type: "phrase", example: "Ab nächster Woche lerne ich Deutsch.", exampleEn: "From next week I'm learning German." },
     ],
   },
   {
