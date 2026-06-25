@@ -2021,6 +2021,9 @@ const b1Decks: RawDeck[] = [
       { de: "Stell dir vor!", en: "Imagine (that)!", type: "phrase" },
       { de: "sich etwas merken", en: "to memorise / note something", type: "verb", example: "Ich merke mir die Vokabel.", exampleEn: "I'm memorising the word." },
       { de: "Ich ziehe mir eine Jacke an.", en: "I put on a jacket.", type: "phrase", note: "Dative reflexive + direct object." },
+      { de: "sich verlassen auf", en: "to rely / depend on", type: "verb", example: "Sie verlässt sich auf ihren Mann.", exampleEn: "She relies on her husband.", note: "+ accusative." },
+      { de: "sich ärgern", en: "to get annoyed / angry", type: "verb", example: "Ich ärgere mich über den Stau.", exampleEn: "I'm annoyed about the traffic jam.", note: "sich ärgern über + accusative." },
+      { de: "sich rasieren", en: "to shave (oneself)", type: "verb", example: "Er rasiert sich jeden Morgen.", exampleEn: "He shaves every morning." },
     ],
   },
   {
@@ -2030,6 +2033,8 @@ const b1Decks: RawDeck[] = [
       { de: "Wir sehen uns morgen.", en: "We'll see each other tomorrow.", type: "phrase", note: "Reflexive pronoun = each other." },
       { de: "Sie lieben sich.", en: "They love each other.", type: "phrase" },
       { de: "Wir kennen uns schon lange.", en: "We've known each other for a long time.", type: "phrase" },
+      { de: "einander", en: "each other / one another", type: "pronoun", example: "Sie helfen einander.", exampleEn: "They help each other.", note: "Invariable; always plural meaning." },
+      { de: "sich begrüßen", en: "to greet each other", type: "verb", example: "Thomas und Martin begrüßen sich.", exampleEn: "Thomas and Martin greet each other." },
       { de: "sich streiten", en: "to argue (with each other)", type: "verb", example: "Sie streiten sich oft.", exampleEn: "They argue often." },
       { de: "sich verstehen", en: "to get along", type: "verb", example: "Wir verstehen uns gut.", exampleEn: "We get along well." },
       { de: "sich treffen", en: "to meet (each other)", type: "verb", example: "Wir treffen uns um sieben.", exampleEn: "We're meeting at seven." },
@@ -2045,6 +2050,7 @@ const b1Decks: RawDeck[] = [
       { de: "Bescheid geben", en: "to let (someone) know", type: "phrase", example: "Gib mir bitte Bescheid.", exampleEn: "Please let me know." },
       { de: "in Frage kommen", en: "to be an option / be considered", type: "phrase", example: "Das kommt nicht in Frage.", exampleEn: "That's out of the question." },
       { de: "Abschied nehmen", en: "to say goodbye / take leave", type: "phrase" },
+      { de: "in Betracht ziehen", en: "to take into consideration", type: "phrase", example: "Wir müssen einen neuen Plan in Betracht ziehen.", exampleEn: "We have to consider a new plan." },
     ],
   },
   {
@@ -2057,6 +2063,7 @@ const b1Decks: RawDeck[] = [
       { de: "Lass mich in Ruhe!", en: "Leave me alone!", type: "phrase" },
       { de: "Meine Eltern lassen mich gehen.", en: "My parents let me go.", type: "phrase", note: "lassen = to allow." },
       { de: "Ich habe mein Handy zu Hause gelassen.", en: "I left my phone at home.", type: "phrase", note: "lassen = to leave (behind)." },
+      { de: "beleidigen", en: "to insult / offend", type: "verb", example: "Ich lasse mich nicht beleidigen.", exampleEn: "I won't let myself be insulted." },
     ],
   },
   {
