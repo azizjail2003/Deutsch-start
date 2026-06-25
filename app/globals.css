@@ -258,6 +258,14 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 
 .track-pace { font-size: 13px !important; font-weight: 600; color: var(--gold-soft) !important; }
 
+/* Home → dictionary call-to-action (mirrors the plan-resume banner) */
+.dict-cta { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; margin: 28px 0 4px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); cursor: pointer; transition: border-color .15s ease, transform .12s ease; }
+.dict-cta:hover { border-color: var(--gold); transform: translateY(-1px); }
+.dict-cta-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); color: var(--gold-soft); flex-shrink: 0; }
+.dict-cta strong { font-weight: 600; }
+.dict-cta > svg:last-child { margin-left: auto; color: var(--muted); flex-shrink: 0; }
+.row-actions { display: flex; align-items: center; gap: 8px; }
+
 .plan-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 4px 0 12px; }
 .plan-stats .pstat { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
 .plan-stats .pstat-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--gold) 13%, var(--surface)); color: var(--gold-soft); flex-shrink: 0; }

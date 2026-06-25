@@ -91,6 +91,7 @@ export default function Home() {
     setSound(soundEnabled());
     setVolumeState(getVolume());
     setPlan(loadPlanState());
+    setPractice(loadPracticeState());
     setHydrated(true);
   }, []);
   useEffect(() => { if (hydrated) savePlanState(plan); }, [plan, hydrated]);
@@ -328,6 +329,15 @@ export default function Home() {
             </aside>
           </section>
 
+          <button className="dict-cta" onClick={() => go("dictionary")}>
+            <span className="dict-cta-ic"><Library size={18} /></span>
+            <span className="plan-resume-text">
+              <strong>{dict.unlocked} word{dict.unlocked === 1 ? "" : "s"} unlocked</strong>
+              <small>Browse your dictionary — every word you’ve reached, with its meaning, an example and audio</small>
+            </span>
+            <ArrowRight size={18} />
+          </button>
+
           <section className="section">
             <div className="section-head">
               <span className="eyebrow"><MapPin size={13} /> The roadmap</span>
@@ -501,6 +511,7 @@ export default function Home() {
               <Search size={17} />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search lessons — e.g. articles, Perfekt, Konjunktiv…" aria-label="Search lessons" />
             </div>
+            <button className="btn btn-ghost" onClick={() => go("dictionary")}><Library size={16} /> Your dictionary</button>
           </div>
           <div className="unit-filter">
             <button className={levelFilter === "all" ? "active" : ""} onClick={() => setLevelFilter("all")}>All</button>
@@ -731,7 +742,10 @@ export default function Home() {
                   <section className="prog-section">
                     <div className="prog-sec-head">
                       <h2>Words to review</h2>
-                      <button className="btn btn-primary btn-sm" onClick={reviewWeak}><RotateCcw size={15} /> Review {pd.weak.length}</button>
+                      <div className="row-actions">
+                        <button className="btn btn-ghost btn-sm" onClick={() => go("dictionary")}><Library size={15} /> All words</button>
+                        <button className="btn btn-primary btn-sm" onClick={reviewWeak}><RotateCcw size={15} /> Review {pd.weak.length}</button>
+                      </div>
                     </div>
                     <div className="weak-list">
                       {pd.weak.map((c) => (
