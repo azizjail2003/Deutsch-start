@@ -2,7 +2,7 @@
 
 import {
   ArrowRight, ArrowUpRight, Award, BookOpen, Check, ChevronLeft, ChevronRight, Clock, Download, Dumbbell,
-  Flame, GraduationCap, HardDriveDownload, Headphones, Languages, Library, MapPin, Mic, Moon, Palette,
+  Flame, GraduationCap, HardDriveDownload, Headphones, Languages, Library, Lock, MapPin, Mic, Moon, Palette,
   PenLine, Play, RotateCcw, Search, Settings, Sparkles, Sun, Target, Trash2, Trophy, Type, Upload,
   Volume2, X, Zap,
 } from "lucide-react";
@@ -12,8 +12,8 @@ import {
   totalLessons, vocabularyUrl,
 } from "@/data/german";
 import {
-  allCards, BADGES, getPracticeXp, getVolume, initialPracticeState, loadPracticeState, masteryOf,
-  playEffect, practiceStreak, PracticeState, setSoundEnabled, setVolume, soundEnabled, summarize,
+  allCards, BADGES, effectiveIndex, getPracticeXp, getVolume, initialPracticeState, loadPracticeState, masteryOf,
+  playEffect, practiceStreak, PracticeState, setSoundEnabled, setVolume, soundEnabled, speakGerman, summarize,
 } from "@/lib/practice";
 import {
   deckAtIndex, initialPlanState, lessonIndicesForDay, loadPlanState, markDay, PlanState,
@@ -44,8 +44,8 @@ function Countdown() {
   return <strong className="countdown">{pad(Math.floor(ms / 3600000))}:{pad(Math.floor((ms % 3600000) / 60000))}:{pad(Math.floor((ms % 60000) / 1000))}</strong>;
 }
 
-type View = "home" | "plan" | "lessons" | "practice" | "progress" | "resources" | "settings";
-const NAV: [View, string][] = [["home", "Home"], ["plan", "Plan"], ["lessons", "Lessons"], ["practice", "Practice"], ["progress", "Progress"], ["resources", "Resources"], ["settings", "Settings"]];
+type View = "home" | "plan" | "lessons" | "dictionary" | "practice" | "progress" | "resources" | "settings";
+const NAV: [View, string][] = [["home", "Home"], ["plan", "Plan"], ["lessons", "Lessons"], ["dictionary", "Dictionary"], ["practice", "Practice"], ["progress", "Progress"], ["resources", "Resources"], ["settings", "Settings"]];
 
 const ACCENTS: { name: string; value: string }[] = [
   { name: "Gold", value: "" }, // default brand gold
@@ -70,6 +70,8 @@ export default function Home() {
   const [reviewSignal, setReviewSignal] = useState(0);
   const [query, setQuery] = useState("");
   const [levelFilter, setLevelFilter] = useState<GermanLevel | "all">("all");
+  const [dictQuery, setDictQuery] = useState("");
+  const [dictLevel, setDictLevel] = useState<GermanLevel | "all">("all");
   const [focus, setFocus] = useState<{ level: GermanLevel; lesson: number } | null>(null);
   const [sound, setSound] = useState(true);
   const [volume, setVolumeState] = useState(0.7);
@@ -212,7 +214,7 @@ export default function Home() {
   };
 
   const go = (v: View) => {
-    if (v === "progress") setPractice(loadPracticeState());
+    if (v === "progress" || v === "dictionary") setPractice(loadPracticeState());
     setView(v);
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -234,6 +236,20 @@ export default function Home() {
       );
     });
   }, [query, levelFilter]);
+
+  // Dictionary: every word, with lessons not yet reached shown locked.
+  const reachedIndex = planIndex ?? effectiveIndex(practice);
+  const dict = useMemo(() => {
+    const term = dictQuery.trim().toLowerCase();
+    const rows = allCards.filter((c) => {
+      if (dictLevel !== "all" && c.level !== dictLevel) return false;
+      if (!term) return true;
+      return c.de.toLowerCase().includes(term) || c.en.toLowerCase().includes(term);
+    });
+    const unlocked = allCards.filter((c) => c.deckIndex <= reachedIndex).length;
+    const counts = (["A1", "A2", "B1"] as const).map((id) => ({ id, count: allCards.filter((c) => c.level === id).length }));
+    return { rows, unlocked, counts };
+  }, [dictQuery, dictLevel, reachedIndex]);
 
   const start = lessons[0];
 
@@ -526,6 +542,67 @@ export default function Home() {
                       </div>
                     </div>
                   </article>
+                );
+              })}
+            </div>
+          )}
+        </main>
+      )}
+
+      {view === "dictionary" && (
+        <main className="wrap">
+          <div className="page-head">
+            <span className="eyebrow"><Library size={13} /> {dict.unlocked} of {allCards.length} words unlocked</span>
+            <h1>Your dictionary</h1>
+            <p>Every word in the course, with its meaning and an example. Words from lessons you’ve reached are unlocked — tap the speaker to hear any word. The rest unlock as you progress.</p>
+          </div>
+          <div className="toolbar">
+            <div className="search">
+              <Search size={17} />
+              <input value={dictQuery} onChange={(e) => setDictQuery(e.target.value)} placeholder="Search a word — German or English…" aria-label="Search words" />
+            </div>
+          </div>
+          <div className="unit-filter">
+            <button className={dictLevel === "all" ? "active" : ""} onClick={() => setDictLevel("all")}>All</button>
+            {dict.counts.map((l) => (
+              <button key={l.id} className={dictLevel === l.id ? "active" : ""} onClick={() => setDictLevel(l.id)}>
+                {l.id} <span className="filter-count">{l.count}</span>
+              </button>
+            ))}
+          </div>
+          <p className="lesson-count">{dict.rows.length} word{dict.rows.length === 1 ? "" : "s"} shown</p>
+          {dict.rows.length === 0 ? (
+            <div className="empty">No words match “{dictQuery}”. Try a different word or clear the search.</div>
+          ) : (
+            <div className="dict-list">
+              {dict.rows.map((c) => {
+                const locked = c.deckIndex > reachedIndex;
+                return (
+                  <div className={`dict-row${locked ? " locked" : ""}`} key={c.id}>
+                    {locked ? (
+                      <span className="dict-saylock" aria-hidden><Lock size={15} /></span>
+                    ) : (
+                      <button className="dict-say" onClick={() => speakGerman(c.de)} aria-label={`Hear ${c.de}`}>
+                        <Volume2 size={15} />
+                      </button>
+                    )}
+                    <div className="dict-text">
+                      <div className="dict-headline">
+                        <span className="dict-de">{c.de}</span>
+                        {c.plural && !locked && <span className="dict-plural">pl. {c.plural}</span>}
+                        <span className={`lesson-level ${c.level.toLowerCase()}`}>{c.level} · L{c.lesson}</span>
+                      </div>
+                      {locked ? (
+                        <span className="dict-lockmsg">Unlocks at {c.level} · Lektion {c.lesson}</span>
+                      ) : (
+                        <>
+                          <span className="dict-en">{c.en}</span>
+                          {c.example && <span className="dict-ex">{c.example}{c.exampleEn ? ` — ${c.exampleEn}` : ""}</span>}
+                          {c.note && <span className="dict-note">{c.note}</span>}
+                        </>
+                      )}
+                    </div>
+                  </div>
                 );
               })}
             </div>

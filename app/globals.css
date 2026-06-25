@@ -566,6 +566,25 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .lesson-level.b1 { background: color-mix(in srgb, var(--ink) 12%, var(--surface)); color: var(--ink); }
 .filter-count { opacity: .55; font-size: 11px; font-weight: 700; }
 
+/* Dictionary — the learner's growing word list */
+.dict-list { display: flex; flex-direction: column; gap: 8px; }
+.dict-row { display: flex; align-items: flex-start; gap: 13px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
+.dict-row.locked { background: var(--paper); }
+.dict-say, .dict-saylock { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; margin-top: 1px; }
+.dict-say { border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; transition: border-color .15s ease, color .15s ease; }
+.dict-say:hover { border-color: var(--gold); color: var(--gold-soft); }
+.dict-saylock { border: 1px dashed var(--line); color: var(--muted); }
+.dict-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.dict-headline { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.dict-de { font-family: var(--font-display), serif; font-weight: 600; font-size: 17px; color: var(--ink); }
+.dict-row.locked .dict-de { filter: blur(5px); user-select: none; }
+.dict-plural { font-size: 12px; color: var(--muted); }
+.dict-headline .lesson-level { margin-left: auto; }
+.dict-en { font-size: 14px; color: var(--ink); }
+.dict-ex { font-size: 13px; color: var(--muted); font-style: italic; line-height: 1.5; }
+.dict-note { font-size: 12px; color: var(--gold-soft); }
+.dict-lockmsg { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: var(--muted); }
+
 /* Keep the nav usable on small screens (it's the only way to move between views) */
 @media (max-width: 900px) {
   .site-header nav { display: flex; gap: 2px; }
