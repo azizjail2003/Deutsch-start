@@ -246,6 +246,8 @@ const a1Decks: RawDeck[] = [
       { de: "ihr", en: "you (plural, informal)", type: "pronoun", example: "Ihr seid spät.", exampleEn: "You (all) are late." },
       { de: "sie (Plural)", en: "they", type: "pronoun", example: "Sie wohnen in Köln.", exampleEn: "They live in Cologne." },
       { de: "Sie (formell)", en: "you (formal)", type: "pronoun", example: "Woher kommen Sie?", exampleEn: "Where do you come from?" },
+      { de: "Das ist …", en: "This is …", type: "phrase", example: "Das ist Michaela.", exampleEn: "This is Michaela.", note: "Singular: Das ist mein Buch." },
+      { de: "Das sind …", en: "These are …", type: "phrase", example: "Das sind Petra und Jürgen.", exampleEn: "These are Petra and Jürgen.", note: "Plural of „Das ist …“." },
     ],
   },
   {
@@ -276,6 +278,7 @@ const a1Decks: RawDeck[] = [
       { de: "machen", en: "to do / to make", type: "verb", example: "Was machst du?", exampleEn: "What are you doing?" },
       { de: "gehen", en: "to go", type: "verb", example: "Ich gehe nach Hause.", exampleEn: "I'm going home." },
       { de: "kommen", en: "to come", type: "verb", example: "Kommst du mit?", exampleEn: "Are you coming along?" },
+      { de: "heißen", en: "to be called", type: "verb", example: "Ich heiße Maria.", exampleEn: "My name is Maria.", note: "Irregular: du heißt, er heißt." },
     ],
   },
   {
@@ -290,6 +293,10 @@ const a1Decks: RawDeck[] = [
       { de: "kaufen", en: "to buy", type: "verb", example: "Ich kaufe Brot.", exampleEn: "I'm buying bread." },
       { de: "fragen", en: "to ask", type: "verb", example: "Er fragt den Lehrer.", exampleEn: "He asks the teacher." },
       { de: "sagen", en: "to say", type: "verb", example: "Was sagst du?", exampleEn: "What are you saying?" },
+      { de: "hören", en: "to hear / to listen", type: "verb", example: "Ich höre Musik.", exampleEn: "I'm listening to music." },
+      { de: "telefonieren", en: "to phone / to call", type: "verb", example: "Sie telefoniert mit der Mutter.", exampleEn: "She is on the phone with her mother." },
+      { de: "tanzen", en: "to dance", type: "verb", example: "Wir tanzen gern.", exampleEn: "We like to dance." },
+      { de: "antworten", en: "to answer", type: "verb", example: "Er antwortet dem Lehrer.", exampleEn: "He answers the teacher.", note: "Stem ends in -t: du antwortest, er antwortet." },
       { de: "die Endung -st", en: "ending -st (du form)", type: "other", note: "du lernst, du machst, du spielst." },
     ],
   },
@@ -305,6 +312,9 @@ const a1Decks: RawDeck[] = [
       { de: "nehmen", en: "to take", type: "verb", example: "Ich nehme den Zug.", exampleEn: "I'm taking the train.", note: "Irregular: du nimmst, er nimmt." },
       { de: "geben", en: "to give", type: "verb", example: "Er gibt mir das Buch.", exampleEn: "He gives me the book.", note: "e → i: du gibst, er gibt." },
       { de: "schlafen", en: "to sleep", type: "verb", example: "Das Baby schläft.", exampleEn: "The baby is sleeping.", note: "a → ä: du schläfst, er schläft." },
+      { de: "laufen", en: "to run / to walk", type: "verb", example: "Ich laufe schnell.", exampleEn: "I run fast.", note: "au → äu: du läufst, er läuft." },
+      { de: "wissen", en: "to know (a fact)", type: "verb", example: "Ich weiß die Antwort.", exampleEn: "I know the answer.", note: "Irregular: ich weiß, du weißt, er weiß." },
+      { de: "treffen", en: "to meet", type: "verb", example: "Ich treffe meine Freunde.", exampleEn: "I'm meeting my friends.", note: "e → i: du triffst, er trifft." },
     ],
   },
   {
