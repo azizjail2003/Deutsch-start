@@ -17,10 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Reads the pnpm version from the "packageManager" field in package.json,
+      # so the version is pinned in exactly one place.
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.5.3
+        uses: pnpm/action-setup@v7
 
       - name: Use Node.js 22
         uses: actions/setup-node@v4
