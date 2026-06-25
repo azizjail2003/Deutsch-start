@@ -454,6 +454,9 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .session-bar .session-count { margin-left: auto; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
 .session-bar-end { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .session-bar-end .session-count { margin-left: 0; }
+.session-prev { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: border-color .15s ease, opacity .15s ease; }
+.session-prev:hover:not(:disabled) { border-color: var(--gold); }
+.session-prev:disabled { opacity: .35; cursor: default; }
 .mark-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease; }
 .mark-btn:hover { border-color: var(--gold); color: var(--gold-soft); }
 .mark-btn.on { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 16%, var(--surface)); color: var(--gold-soft); }

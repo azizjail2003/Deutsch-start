@@ -2,7 +2,7 @@
 
 import {
   ArrowRight, Award, Check, ChevronLeft, Ear, Flame, Keyboard, Languages, Layers, ListChecks,
-  Lock, Quote, RotateCcw, Shuffle, Sparkles, Star, Target, Trophy, Volume2, Zap,
+  Lock, Quote, RotateCcw, Shuffle, Sparkles, Star, Target, Trophy, Volume2, X, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { allCards, articleOf, clozeFor, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
@@ -474,6 +474,9 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const [toasts, setToasts] = useState<{ id: number; text: string }[]>([]);
   const streakRef = useRef(0);
   const toastIdRef = useRef(0);
+  // Cards already scored this session — so stepping Back and re-answering a card
+  // reviews it without counting twice.
+  const answeredRef = useRef<Set<string>>(new Set());
 
   const pushToast = (text: string) => {
     const id = ++toastIdRef.current;
@@ -482,6 +485,8 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   };
 
   useEffect(() => { savePracticeState(state); }, [state]);
+  // A fresh session clears the answered set.
+  useEffect(() => { answeredRef.current = new Set(); }, [session]);
   useEffect(() => {
     const onFirst = () => { primeSpeech(); window.removeEventListener("pointerdown", onFirst); };
     window.addEventListener("pointerdown", onFirst, { once: true });
@@ -612,27 +617,33 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   };
 
   const handleResult = (id: string, correct: boolean) => {
-    // Detect a tricky word graduating: correct answer that reaches the release box.
-    const released = correct && state.marked.includes(id) && (state.stats[id]?.box ?? 0) + 1 >= MARK_RELEASE_BOX;
-    setState((s) => recordResult(s, id, correct));
-    if (released) {
-      const card = session?.find((c) => c.id === id);
-      playEffect("achievement");
-      pushToast(`Memorized${card ? ` “${card.de}”` : ""} 🎉 — off your tricky list`);
-    }
-    if (correct) setCorrectCount((c) => c + 1);
-    else {
-      const card = session?.find((c) => c.id === id);
-      if (card) setWrongCards((w) => (w.some((x) => x.id === id) ? w : [...w, card]));
+    const firstTime = !answeredRef.current.has(id);
+    if (firstTime) {
+      answeredRef.current.add(id);
+      // Detect a tricky word graduating: correct answer that reaches the release box.
+      const released = correct && state.marked.includes(id) && (state.stats[id]?.box ?? 0) + 1 >= MARK_RELEASE_BOX;
+      setState((s) => recordResult(s, id, correct));
+      if (released) {
+        const card = session?.find((c) => c.id === id);
+        playEffect("achievement");
+        pushToast(`Memorized${card ? ` “${card.de}”` : ""} 🎉 — off your tricky list`);
+      }
+      if (correct) setCorrectCount((c) => c + 1);
+      else {
+        const card = session?.find((c) => c.id === id);
+        if (card) setWrongCards((w) => (w.some((x) => x.id === id) ? w : [...w, card]));
+      }
     }
     const activeMode = sessionModes ? sessionModes[index] : mode;
     if (activeMode !== "match") {
       playEffect(correct ? "correct" : "wrong");
-      if (correct) {
-        streakRef.current += 1;
-        if (streakRef.current % 5 === 0) pushToast(`${streakRef.current} in a row — stark!`);
-      } else {
-        streakRef.current = 0;
+      if (firstTime) {
+        if (correct) {
+          streakRef.current += 1;
+          if (streakRef.current % 5 === 0) pushToast(`${streakRef.current} in a row — stark!`);
+        } else {
+          streakRef.current = 0;
+        }
       }
     }
   };
@@ -642,6 +653,8 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     if (index + 1 < session.length) setIndex(index + 1);
     else setDone(true);
   };
+
+  const prev = () => setIndex((i) => Math.max(0, i - 1));
 
   const exit = () => { setSession(null); setMode(null); setDone(false); setSessionModes(null); };
 
@@ -680,10 +693,13 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     return (
       <div className="practice-root focus">
         <div className="session-bar">
-          <button className="back-button" onClick={exit}><ChevronLeft size={18} /> Exit</button>
+          <button className="back-button" onClick={exit}><X size={17} /> Exit</button>
           <span className="session-title">{sessionTitle}</span>
           {activeMode !== "match" && (
             <div className="session-bar-end">
+              <button className="session-prev" onClick={prev} disabled={index === 0} aria-label="Previous card">
+                <ChevronLeft size={15} /> Back
+              </button>
               <button
                 className={`mark-btn ${state.marked.includes(session[index].id) ? "on" : ""}`}
                 onClick={() => setState((s) => toggleMarked(s, session[index].id))}
