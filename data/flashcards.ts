@@ -1438,6 +1438,8 @@ const a2Decks: RawDeck[] = [
       { de: "als", en: "than (in comparisons)", type: "other", example: "Ich bin älter als du.", exampleEn: "I'm older than you." },
       { de: "Berlin ist größer als Bonn.", en: "Berlin is bigger than Bonn.", type: "phrase" },
       { de: "Heute ist es wärmer als gestern.", en: "Today it's warmer than yesterday.", type: "phrase" },
+      { de: "lecker", en: "tasty / delicious", type: "adjective", example: "Das Sandwich ist lecker.", exampleEn: "The sandwich is tasty." },
+      { de: "das Sandwich", en: "the sandwich", type: "noun", plural: "die Sandwiches" },
     ],
   },
   {
@@ -1451,6 +1453,8 @@ const a2Decks: RawDeck[] = [
       { de: "am schnellsten", en: "the fastest", type: "phrase" },
       { de: "Was ist am wichtigsten?", en: "What is most important?", type: "question" },
       { de: "wichtig", en: "important", type: "adjective" },
+      { de: "der Berg", en: "the mountain", type: "noun", plural: "die Berge", example: "Die Zugspitze ist der höchste Berg.", exampleEn: "The Zugspitze is the highest mountain." },
+      { de: "das Bundesland", en: "the federal state", type: "noun", plural: "die Bundesländer", example: "Bayern ist das größte Bundesland.", exampleEn: "Bavaria is the largest federal state." },
     ],
   },
   {
@@ -1462,6 +1466,7 @@ const a2Decks: RawDeck[] = [
       { de: "Er kauft es, obwohl es teuer ist.", en: "He's buying it although it's expensive.", type: "phrase" },
       { de: "spazieren gehen", en: "to go for a walk", type: "phrase", example: "Am Abend gehen wir spazieren.", exampleEn: "In the evening we go for a walk." },
       { de: "trotzdem", en: "nevertheless / anyway", type: "adverb", example: "Es regnet. Trotzdem gehe ich raus.", exampleEn: "It's raining. I'm going out anyway." },
+      { de: "das Kino", en: "the cinema", type: "noun", plural: "die Kinos", example: "Ich gehe ins Kino, obwohl ich müde bin.", exampleEn: "I'm going to the cinema even though I'm tired." },
     ],
   },
   {
@@ -1473,6 +1478,8 @@ const a2Decks: RawDeck[] = [
       { de: "deswegen", en: "for that reason", type: "adverb", example: "Es regnet, deswegen nehme ich den Schirm.", exampleEn: "It's raining, so I'm taking the umbrella." },
       { de: "Ich hatte keine Zeit, trotzdem bin ich gekommen.", en: "I had no time; I came anyway.", type: "phrase" },
       { de: "der Schirm", en: "the umbrella", type: "noun", plural: "die Schirme" },
+      { de: "das Handy", en: "the mobile phone", type: "noun", plural: "die Handys", example: "Er kauft ein neues Handy.", exampleEn: "He's buying a new mobile phone." },
+      { de: "der Test", en: "the test", type: "noun", plural: "die Tests", example: "Morgen gibt es einen Test.", exampleEn: "There's a test tomorrow." },
     ],
   },
   {
@@ -1486,6 +1493,8 @@ const a2Decks: RawDeck[] = [
       { de: "Es wird dunkel.", en: "It's getting dark.", type: "phrase" },
       { de: "Ich werde dich morgen anrufen.", en: "I will call you tomorrow.", type: "phrase", note: "werden + infinitive = future." },
       { de: "Was möchtest du werden?", en: "What do you want to become?", type: "question" },
+      { de: "wir werden", en: "we will / become", type: "verb", example: "Wir werden bald umziehen.", exampleEn: "We will move soon." },
+      { de: "ihr werdet", en: "you (plural) will / become", type: "verb", example: "Ihr werdet sofort alles aufräumen!", exampleEn: "You'll tidy everything up right now!" },
     ],
   },
   {
