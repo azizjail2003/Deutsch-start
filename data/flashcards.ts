@@ -2262,6 +2262,9 @@ const b1Decks: RawDeck[] = [
       { de: "die geöffnete Tür", en: "the opened door", type: "phrase" },
       { de: "ein gebrauchtes Auto", en: "a used car", type: "phrase" },
       { de: "gebraucht", en: "used / second-hand", type: "adjective" },
+      { de: "braten", en: "to fry / roast", type: "verb", example: "Die gebratenen Nudeln sind sehr lecker.", exampleEn: "The fried noodles are very tasty.", note: "Irregular: brät, hat gebraten." },
+      { de: "stehlen", en: "to steal", type: "verb", example: "Das Auto wurde gestohlen.", exampleEn: "The car was stolen.", note: "e → ie: du stiehlst; hat gestohlen." },
+      { de: "der Verlobte", en: "the fiancé", type: "noun", plural: "die Verlobten", note: "Nominalized; female: die Verlobte." },
     ],
   },
   {
@@ -2273,6 +2276,8 @@ const b1Decks: RawDeck[] = [
       { de: "Das Geschäft ist geschlossen.", en: "The shop is closed.", type: "phrase" },
       { de: "Der Tisch ist gedeckt.", en: "The table is set.", type: "phrase" },
       { de: "Die Rechnung ist schon bezahlt.", en: "The bill is already paid.", type: "phrase" },
+      { de: "das Publikum", en: "the audience", type: "noun", example: "Das Publikum ist begeistert.", exampleEn: "The audience is thrilled.", note: "Usually no plural." },
+      { de: "der Täter", en: "the perpetrator / culprit", type: "noun", plural: "die Täter", example: "Die Polizei sucht den Täter.", exampleEn: "The police are looking for the perpetrator." },
     ],
   },
   {
@@ -2285,6 +2290,7 @@ const b1Decks: RawDeck[] = [
       { de: "An deiner Stelle würde ich warten.", en: "If I were you, I'd wait.", type: "phrase" },
       { de: "Das wäre schön.", en: "That would be nice.", type: "phrase" },
       { de: "würde + Infinitiv", en: "would + verb (most common Konjunktiv II)", type: "other" },
+      { de: "die Krawatte", en: "the tie", type: "noun", plural: "die Krawatten", example: "Eine schwarze Krawatte würde ihm besser gefallen.", exampleEn: "He'd prefer a black tie." },
     ],
   },
   {
