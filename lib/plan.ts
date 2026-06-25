@@ -20,11 +20,14 @@ export function trackById(id: string | null): Track | null {
   return TRACKS.find((t) => t.id === id) ?? null;
 }
 
-/** Lessons completed by the end of `day` (even Bresenham spread). */
+/** Lessons completed by the end of `day` (even Bresenham spread).
+ * Rounds (not floors) so the spread is centred: day 1 starts on lesson 1 and
+ * any "lighter" days (when lessons/day < 1, e.g. the 180-day track) fall evenly
+ * through the plan instead of all clustering at the very start. */
 export function cumulativeByDay(track: Track, day: number): number {
   if (day <= 0) return 0;
   if (day >= track.days) return track.scope;
-  return Math.floor((day * track.scope) / track.days);
+  return Math.round((day * track.scope) / track.days);
 }
 
 /** Curriculum indices (1-based) scheduled for a given plan day. */
