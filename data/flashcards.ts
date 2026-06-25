@@ -1274,6 +1274,9 @@ const a2Decks: RawDeck[] = [
       { de: "verheiratet", en: "married", type: "adjective", example: "Ich bin verheiratet.", exampleEn: "I'm married." },
       { de: "ledig", en: "single (unmarried)", type: "adjective", example: "Sie ist ledig.", exampleEn: "She is single." },
       { de: "der Beruf", en: "the profession", type: "noun", plural: "die Berufe", example: "Was sind Sie von Beruf?", exampleEn: "What's your profession?" },
+      { de: "arbeitslos", en: "unemployed", type: "adjective", example: "Ich bin arbeitslos und suche eine Stelle.", exampleEn: "I'm unemployed and looking for a job." },
+      { de: "selbstständig", en: "self-employed", type: "adjective", example: "Sie ist selbstständig.", exampleEn: "She is self-employed." },
+      { de: "die Teilzeit", en: "part-time", type: "noun", example: "Ich arbeite Teilzeit.", exampleEn: "I work part-time.", note: "Opposite: die Vollzeit (full-time)." },
     ],
   },
   {
@@ -1290,6 +1293,13 @@ const a2Decks: RawDeck[] = [
       { de: "schüchtern", en: "shy", type: "adjective", example: "Als Kind war ich schüchtern.", exampleEn: "As a child I was shy." },
       { de: "selbstbewusst", en: "self-confident", type: "adjective", example: "Sie ist selbstbewusst.", exampleEn: "She is self-confident." },
       { de: "der Charakter", en: "the character / personality", type: "noun", plural: "die Charaktere" },
+      { de: "höflich", en: "polite", type: "adjective", example: "Er ist immer höflich.", exampleEn: "He is always polite.", note: "Opposite: unhöflich." },
+      { de: "zuverlässig", en: "reliable", type: "adjective", example: "Sie ist sehr zuverlässig.", exampleEn: "She is very reliable.", note: "Opposite: unzuverlässig." },
+      { de: "humorvoll", en: "humorous / funny", type: "adjective", example: "Mein Bruder ist humorvoll.", exampleEn: "My brother is humorous.", note: "Opposite: humorlos." },
+      { de: "mutig", en: "brave / courageous", type: "adjective", example: "Sei mutig!", exampleEn: "Be brave!" },
+      { de: "ängstlich", en: "anxious / fearful", type: "adjective", example: "Das Kind ist ängstlich.", exampleEn: "The child is anxious." },
+      { de: "kreativ", en: "creative", type: "adjective", example: "Sie ist sehr kreativ.", exampleEn: "She is very creative.", note: "Opposite: unkreativ." },
+      { de: "hübsch", en: "pretty / good-looking", type: "adjective", example: "Sabina ist hübsch.", exampleEn: "Sabina is pretty." },
     ],
   },
   {
@@ -1304,6 +1314,7 @@ const a2Decks: RawDeck[] = [
       { de: "glauben", en: "to believe", type: "verb", example: "Ich glaube dir.", exampleEn: "I believe you." },
       { de: "hoffen", en: "to hope", type: "verb", example: "Wir hoffen auf gutes Wetter.", exampleEn: "We're hoping for good weather." },
       { de: "Es tut mir leid, dass ich zu spät bin.", en: "I'm sorry that I'm late.", type: "phrase" },
+      { de: "bestehen", en: "to pass (an exam)", type: "verb", example: "Es ist schön, dass du die Prüfung bestanden hast.", exampleEn: "It's great that you passed the exam.", note: "Perfekt: hat bestanden." },
     ],
   },
   {
@@ -1317,6 +1328,8 @@ const a2Decks: RawDeck[] = [
       { de: "der Grund", en: "the reason", type: "noun", plural: "die Gründe", example: "Was ist der Grund?", exampleEn: "What's the reason?" },
       { de: "Warum …?", en: "Why …?", type: "question", example: "Warum lernst du Deutsch?", exampleEn: "Why are you learning German?" },
       { de: "deshalb", en: "therefore / that's why", type: "adverb", example: "Es regnet, deshalb bleibe ich zu Hause.", exampleEn: "It's raining, so I'm staying home." },
+      { de: "verpassen", en: "to miss (a train, bus, etc.)", type: "verb", example: "Ich bin spät, weil ich den Zug verpasst habe.", exampleEn: "I'm late because I missed the train." },
+      { de: "die Ursache", en: "the cause", type: "noun", plural: "die Ursachen", example: "Was ist die Ursache?", exampleEn: "What is the cause?", note: "weil/da give the Grund or Ursache." },
     ],
   },
   {
@@ -1331,6 +1344,11 @@ const a2Decks: RawDeck[] = [
       { de: "guter Wein", en: "good wine (no article)", type: "phrase", note: "No article → adjective takes the article's ending." },
       { de: "interessant", en: "interesting", type: "adjective", example: "Das ist ein interessantes Buch.", exampleEn: "That's an interesting book." },
       { de: "die Idee", en: "the idea", type: "noun", plural: "die Ideen" },
+      { de: "sauer", en: "sour", type: "adjective", example: "Das ist ein saurer Wein.", exampleEn: "That's a sour wine." },
+      { de: "hoch", en: "high / tall", type: "adjective", example: "Das ist ein hoher Baum.", exampleEn: "That's a tall tree.", note: "Drops the -c- when declined: ein hoher Baum." },
+      { de: "dunkel", en: "dark", type: "adjective", example: "Das sind dunkle Räume.", exampleEn: "Those are dark rooms.", note: "Drops the -e- when declined: dunkle Räume." },
+      { de: "der Baum", en: "the tree", type: "noun", plural: "die Bäume" },
+      { de: "der Raum", en: "the room / space", type: "noun", plural: "die Räume" },
     ],
   },
   {
