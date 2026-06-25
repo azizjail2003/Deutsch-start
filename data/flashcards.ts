@@ -1571,6 +1571,10 @@ const a2Decks: RawDeck[] = [
       { de: "Das ist der Autor, dessen Buch ich lese.", en: "That's the author whose book I'm reading.", type: "phrase" },
       { de: "Die Kinder, deren Eltern arbeiten, ...", en: "The children whose parents work …", type: "phrase" },
       { de: "der Autor", en: "the author", type: "noun", plural: "die Autoren" },
+      { de: "schick", en: "chic / stylish", type: "adjective", example: "Das ist ein schickes Auto.", exampleEn: "That's a stylish car." },
+      { de: "kaputt", en: "broken", type: "adjective", example: "Das Auto, das kaputt ist, fährt nicht.", exampleEn: "The car that is broken doesn't drive." },
+      { de: "sterben", en: "to die", type: "verb", example: "Sein Vater ist gestern gestorben.", exampleEn: "His father died yesterday.", note: "Perfekt with sein: ist gestorben." },
+      { de: "die Schauspielerin", en: "the actress", type: "noun", plural: "die Schauspielerinnen", note: "Male: der Schauspieler." },
     ],
   },
   {
@@ -1583,6 +1587,9 @@ const a2Decks: RawDeck[] = [
       { de: "Das ist alles, was ich weiß.", en: "That's all (that) I know.", type: "phrase", note: "After alles/etwas/nichts → was." },
       { de: "Es gibt nichts, was ich ändern kann.", en: "There's nothing (that) I can change.", type: "phrase" },
       { de: "ändern", en: "to change", type: "verb" },
+      { de: "gratulieren", en: "to congratulate", type: "verb", example: "Er hat mir persönlich gratuliert.", exampleEn: "He congratulated me personally.", note: "Takes the dative." },
+      { de: "zustimmen", en: "to agree", type: "verb", example: "Es gibt vieles, dem ich zustimmen kann.", exampleEn: "There's a lot I can agree with.", note: "Separable, takes the dative: stimmt … zu." },
+      { de: "das Schlimmste", en: "the worst (thing)", type: "noun", example: "Das ist das Schlimmste, was ich gesehen habe.", exampleEn: "That's the worst thing I've seen." },
     ],
   },
   {
@@ -1597,6 +1604,9 @@ const a2Decks: RawDeck[] = [
       { de: "jeder", en: "everyone / each", type: "pronoun", example: "Jeder kann Deutsch lernen.", exampleEn: "Everyone can learn German." },
       { de: "alle", en: "everyone / all", type: "pronoun", example: "Alle sind gekommen.", exampleEn: "Everyone came." },
       { de: "Man darf hier nicht rauchen.", en: "You're not allowed to smoke here.", type: "phrase" },
+      { de: "einige", en: "some / a few", type: "pronoun", example: "Hier sind viele Bücher. Einige will ich mitnehmen.", exampleEn: "There are many books here. I want to take some." },
+      { de: "mitnehmen", en: "to take along", type: "verb", example: "Kann ich das Buch mitnehmen?", exampleEn: "Can I take the book with me?", note: "Separable: nimmt … mit." },
+      { de: "gefährlich", en: "dangerous", type: "adjective", example: "Manche Hunde sind gefährlich.", exampleEn: "Some dogs are dangerous." },
     ],
   },
   {
@@ -1622,6 +1632,8 @@ const a2Decks: RawDeck[] = [
       { de: "kaufte (← kaufen)", en: "bought", type: "verb" },
       { de: "sagte (← sagen)", en: "said", type: "verb", example: "Er sagte nichts.", exampleEn: "He said nothing." },
       { de: "spielte (← spielen)", en: "played", type: "verb" },
+      { de: "zeichnen", en: "to draw", type: "verb", example: "Als Kind zeichnete ich gern.", exampleEn: "As a child I liked to draw.", note: "Präteritum: zeichnete." },
+      { de: "reden", en: "to talk / speak", type: "verb", example: "Wir redeten lange.", exampleEn: "We talked for a long time.", note: "Präteritum: redete." },
     ],
   },
   {
