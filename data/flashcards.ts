@@ -1041,6 +1041,7 @@ const a1Decks: RawDeck[] = [
       { de: "Diese Schuhe sind teuer.", en: "These shoes are expensive.", type: "phrase" },
       { de: "Ich nehme dieses Hemd.", en: "I'll take this shirt.", type: "phrase" },
       { de: "Möchten Sie diese Jacke?", en: "Would you like this jacket?", type: "question" },
+      { de: "die Bluse", en: "the blouse", type: "noun", plural: "die Blusen", example: "Wie findest du diese Bluse?", exampleEn: "How do you like this blouse?" },
     ],
   },
   {
@@ -1057,6 +1058,12 @@ const a1Decks: RawDeck[] = [
       { de: "anprobieren", en: "to try on", type: "verb", example: "Kann ich das anprobieren?", exampleEn: "Can I try this on?" },
       { de: "passen", en: "to fit", type: "verb", example: "Die Hose passt gut.", exampleEn: "The trousers fit well." },
       { de: "Wie viel kostet das?", en: "How much does that cost?", type: "question" },
+      { de: "Ich suche …", en: "I'm looking for …", type: "phrase", example: "Ich suche eine Hose.", exampleEn: "I'm looking for trousers." },
+      { de: "der Verkäufer", en: "the salesman / shop assistant", type: "noun", plural: "die Verkäufer" },
+      { de: "die Verkäuferin", en: "the saleswoman / shop assistant", type: "noun", plural: "die Verkäuferinnen" },
+      { de: "die Abteilung", en: "the department / section", type: "noun", plural: "die Abteilungen", example: "Wo ist die Kinderabteilung?", exampleEn: "Where is the children's department?" },
+      { de: "bequem", en: "comfortable", type: "adjective", example: "Ist die Hose bequem?", exampleEn: "Are the trousers comfortable?" },
+      { de: "die Hochzeit", en: "the wedding", type: "noun", plural: "die Hochzeiten", example: "Ich brauche ein Kleid für eine Hochzeit.", exampleEn: "I need a dress for a wedding." },
     ],
   },
   {
@@ -1072,6 +1079,11 @@ const a1Decks: RawDeck[] = [
       { de: "die Quittung", en: "the receipt", type: "noun", plural: "die Quittungen", example: "Kann ich eine Quittung haben?", exampleEn: "Can I have a receipt?" },
       { de: "Halten Sie hier, bitte.", en: "Stop here, please.", type: "phrase" },
       { de: "Zum Flughafen, bitte.", en: "To the airport, please.", type: "phrase" },
+      { de: "der Flughafen", en: "the airport", type: "noun", plural: "die Flughäfen", example: "Bringen Sie mich bitte zum Flughafen.", exampleEn: "Please take me to the airport." },
+      { de: "die Taxifahrerin", en: "the taxi driver (female)", type: "noun", plural: "die Taxifahrerinnen" },
+      { de: "anhalten", en: "to stop", type: "verb", example: "Können Sie bitte hier anhalten?", exampleEn: "Can you stop here, please?", note: "Separable: hält … an." },
+      { de: "der Bankautomat", en: "the cash machine / ATM", type: "noun", plural: "die Bankautomaten" },
+      { de: "Stimmt so!", en: "Keep the change!", type: "phrase", note: "Said when paying; der Rest ist für Sie." },
     ],
   },
   {
