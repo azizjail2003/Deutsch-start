@@ -479,6 +479,12 @@ const a1Decks: RawDeck[] = [
       { de: "euer", en: "your (plural, informal)", type: "pronoun", example: "Ist das euer Lehrer?", exampleEn: "Is that your teacher?" },
       { de: "Ihr", en: "your (formal)", type: "pronoun", example: "Ist das Ihr Mantel?", exampleEn: "Is that your coat?" },
       { de: "meine", en: "my (feminine/plural)", type: "pronoun", example: "Das ist meine Mutter.", exampleEn: "This is my mother." },
+      { de: "deine", en: "your (feminine/plural, informal)", type: "pronoun", example: "Sind das deine Bücher?", exampleEn: "Are those your books?" },
+      { de: "seine", en: "his (feminine/plural)", type: "pronoun", example: "Das ist seine Katze.", exampleEn: "That is his cat." },
+      { de: "ihre", en: "her / their (feminine/plural)", type: "pronoun", example: "Das sind ihre Bücher.", exampleEn: "Those are her books." },
+      { de: "unsere", en: "our (feminine/plural)", type: "pronoun", example: "Das ist unsere Katze.", exampleEn: "That is our cat." },
+      { de: "eure", en: "your (plural, feminine/plural)", type: "pronoun", example: "Wo sind eure Bücher?", exampleEn: "Where are your books?" },
+      { de: "Ihre", en: "your (formal, feminine/plural)", type: "pronoun", example: "Sind das Ihre Bücher?", exampleEn: "Are those your books?" },
     ],
   },
   {
