@@ -140,7 +140,6 @@ const a1Decks: RawDeck[] = [
       { de: "das Alphabet", en: "the alphabet", type: "noun", plural: "die Alphabete" },
       { de: "der Buchstabe", en: "the letter (of the alphabet)", type: "noun", plural: "die Buchstaben", example: "Wie viele Buchstaben hat das Wort?", exampleEn: "How many letters does the word have?" },
       { de: "buchstabieren", en: "to spell", type: "verb", example: "Kannst du deinen Namen buchstabieren?", exampleEn: "Can you spell your name?" },
-      { de: "Wie schreibt man das?", en: "How do you write that?", type: "question", example: "Wie schreibt man das? Mit ß?", exampleEn: "How do you write that? With ß?" },
       { de: "der Umlaut", en: "the umlaut (ä, ö, ü)", type: "noun", plural: "die Umlaute" },
       { de: "das Eszett (ß)", en: "the sharp S (ß)", type: "noun", note: "Also called scharfes S." },
       { de: "großschreiben", en: "to write with a capital letter", type: "verb", example: "Nomen schreibt man im Deutschen groß.", exampleEn: "In German, nouns are capitalised." },
