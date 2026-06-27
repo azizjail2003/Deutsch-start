@@ -371,6 +371,17 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .mix-chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .mix-note { margin: 0; font-size: 13px; color: var(--muted); }
 .mix-start { align-self: flex-start; }
+.mix-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mix-quick { display: flex; gap: 6px; }
+.mix-quick button { border: none; background: none; padding: 2px 4px; font-weight: 600; font-size: 12px; color: var(--gold); cursor: pointer; }
+.mix-quick button:hover { text-decoration: underline; }
+.mix-stepper { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mix-step { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--line); background: var(--surface); border-radius: 9px; cursor: pointer; color: var(--ink); transition: border-color .15s ease, background .15s ease; }
+.mix-step:hover:not(:disabled) { border-color: var(--gold); }
+.mix-step:disabled { opacity: .4; cursor: not-allowed; }
+.mix-stepper input { width: 64px; height: 32px; text-align: center; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--ink); font-weight: 700; font-size: 14px; }
+.mix-stepper input:focus { outline: none; border-color: var(--gold); }
+.mix-stepper-note { font-size: 13px; color: var(--muted); }
 
 /* Confirm dialog */
 .confirm-overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--ink) 45%, transparent); backdrop-filter: blur(3px); animation: confirm-fade .15s ease; }

@@ -2,7 +2,7 @@
 
 import {
   ArrowRight, Award, Check, ChevronLeft, Ear, Flame, Keyboard, Languages, Layers, ListChecks,
-  Lock, Quote, RotateCcw, Shuffle, Sparkles, Star, Target, Trophy, Volume2, X, Zap,
+  Lock, Minus, Plus, Quote, RotateCcw, Shuffle, Sparkles, Star, Target, Trophy, Volume2, X, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { allCards, articleOf, clozeFor, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
@@ -34,6 +34,7 @@ function normalize(value: string): string {
   return value
     .trim()
     .toLowerCase()
+    .replace(/\([^)]*\)/g, " ") // drop disambiguation labels like "(Plural)", "(formell)"
     .replace(/^(der|die|das)\s+/, "")
     .replace(/[.,!?;:()„“"…]/g, "")
     .replace(/\s+/g, " ")
@@ -45,6 +46,7 @@ function looseNormalize(value: string): string {
   return value
     .trim()
     .toLowerCase()
+    .replace(/\([^)]*\)/g, " ") // drop disambiguation labels like "(Plural)", "(formell)"
     .replace(/^(der|die|das)\s+/, "")
     .replace(/[.,!?;:()„“"'…-]/g, "")
     .replace(/\s+/g, "")
@@ -528,6 +530,10 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     return scope === "all" ? allUnlocked : allUnlocked.filter((c) => c.level === scope);
   }, [allUnlocked, scope, lessonFilter]);
   const focusTitle = lessonFilter ? scopedPool[0]?.lessonTitle ?? "" : "";
+  // Custom-mix question count is bounded by how many cards the current scope offers.
+  const maxMix = Math.max(1, scopedPool.length);
+  const mixPresets = useMemo(() => [6, 12, 20, 30, 50].filter((n) => n < maxMix), [maxMix]);
+  useEffect(() => { setMixCount((c) => Math.min(Math.max(1, c), maxMix)); }, [maxMix]);
   const summary = useMemo(() => summarize(allUnlocked, state.stats), [allUnlocked, state.stats]);
   const globalSummary = useMemo(() => summarize(allCards, state.stats), [state.stats]);
   const streakDays = practiceStreak(state.days);
@@ -558,13 +564,18 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.xp, state.sessions, state.stats, state.days]);
 
+  // A card is "typeable" only if its headword is a single answer to write out;
+  // slash paradigms like "er/sie/es hat" are illogical to type or take dictation on.
+  const typeable = (c: FlashcardWithMeta) => !headword(c).includes("/");
   const nounCount = scopedPool.filter((c) => articleOf(c) != null).length;
   const clozeCount = scopedPool.filter((c) => clozeFor(c) != null).length;
+  const typeableCount = scopedPool.filter(typeable).length;
   const modeAvailable = (m: Mode): boolean => {
     if (m === "articles") return nounCount >= 1;
     if (m === "cloze") return clozeCount >= 1;
     if (m === "match") return scopedPool.length >= 2;
     if (m === "choice" || m === "listen") return allUnlocked.length >= 2 && scopedPool.length >= 1;
+    if (m === "type" || m === "dictation") return typeableCount >= 1;
     return scopedPool.length >= 1;
   };
 
@@ -574,6 +585,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     let base = cardsOverride ?? (reviewOnly ? allUnlocked : scopedPool);
     if (m === "articles") base = base.filter((c) => articleOf(c) != null);
     if (m === "cloze") base = base.filter((c) => clozeFor(c) != null);
+    if (m === "type" || m === "dictation") base = base.filter(typeable);
     const picked = cardsOverride
       ? cardsOverride
       : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !reviewOnly, reviewOnly, state.marked);
@@ -598,6 +610,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const mixModeValid = (m: Mode, c: FlashcardWithMeta) => {
     if (m === "articles") return articleOf(c) != null;
     if (m === "cloze") return clozeFor(c) != null;
+    if (m === "type" || m === "dictation") return typeable(c);
     return true;
   };
   const toggleMix = (m: Mode) => setMixSelected((s) => { const n = new Set(s); if (n.has(m)) n.delete(m); else n.add(m); return n; });
@@ -815,7 +828,13 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
       {mixOpen && (
         <div className="mix-builder">
           <div className="mix-section">
-            <span className="scope-label">Include exercises</span>
+            <div className="mix-section-head">
+              <span className="scope-label">Include exercises</span>
+              <div className="mix-quick">
+                <button type="button" onClick={() => setMixSelected(new Set(MIXABLE))}>Select all</button>
+                <button type="button" onClick={() => setMixSelected(new Set())}>Clear</button>
+              </div>
+            </div>
             <div className="mix-chips">
               {MIXABLE.map((m) => {
                 const meta = MODES.find((x) => x.id === m)!;
@@ -826,7 +845,17 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
           <div className="mix-section">
             <span className="scope-label">Questions</span>
             <div className="scope-chips">
-              {[6, 12, 20, 30].map((n) => <button key={n} className={mixCount === n ? "active" : ""} onClick={() => setMixCount(n)}>{n}</button>)}
+              {mixPresets.map((n) => <button key={n} className={mixCount === n ? "active" : ""} onClick={() => setMixCount(n)}>{n}</button>)}
+              <button className={mixCount >= maxMix ? "active" : ""} onClick={() => setMixCount(maxMix)}>All ({maxMix})</button>
+            </div>
+            <div className="mix-stepper">
+              <button type="button" className="mix-step" aria-label="Fewer questions" disabled={mixCount <= 1} onClick={() => setMixCount((c) => Math.max(1, c - 1))}><Minus size={15} /></button>
+              <input
+                type="number" min={1} max={maxMix} value={mixCount} aria-label="Number of questions"
+                onChange={(e) => { const v = parseInt(e.target.value, 10); setMixCount(Number.isNaN(v) ? 1 : Math.min(maxMix, Math.max(1, v))); }}
+              />
+              <button type="button" className="mix-step" aria-label="More questions" disabled={mixCount >= maxMix} onClick={() => setMixCount((c) => Math.min(maxMix, c + 1))}><Plus size={15} /></button>
+              <span className="mix-stepper-note">of {maxMix} available</span>
             </div>
           </div>
           <p className="mix-note">Uses your current level &amp; “focus on weak words” filters above.</p>
