@@ -3,6 +3,7 @@ import {
   cardsUpToIndex,
   FlashcardWithMeta,
   GermanLevel,
+  headword,
   lessonDecks,
   totalDecks,
 } from "@/data/flashcards";
@@ -264,6 +265,16 @@ export function selectSession(
   return ordered.slice(0, Math.min(count, ordered.length));
 }
 
+/** A normalized key for the German side, so homographs and review duplicates
+ *  ("der" vs "der (Dativ)", two "gut" cards) collapse to the same word. */
+function deKey(card: FlashcardWithMeta): string {
+  return headword(card)
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function distractorsFor(
   card: FlashcardWithMeta,
   pool: FlashcardWithMeta[],
@@ -271,8 +282,11 @@ export function distractorsFor(
   howMany: number,
 ): string[] {
   const correct = card[field];
+  const sameWord = deKey(card);
+  // Never offer a distractor that is itself a valid meaning of the prompt word
+  // (e.g. "the (masculine)" when the prompt "der" is tagged as a relative pronoun).
   const candidates = pool
-    .filter((c) => c.id !== card.id && c[field] !== correct)
+    .filter((c) => c.id !== card.id && c[field] !== correct && deKey(c) !== sameWord)
     .map((c) => c[field]);
   const unique = Array.from(new Set(candidates));
   return shuffle(unique).slice(0, howMany);

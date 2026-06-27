@@ -564,9 +564,13 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.xp, state.sessions, state.stats, state.days]);
 
-  // A card is "typeable" only if its headword is a single answer to write out;
-  // slash paradigms like "er/sie/es hat" are illogical to type or take dictation on.
-  const typeable = (c: FlashcardWithMeta) => !headword(c).includes("/");
+  // A card is "typeable" only if its headword is a single answer to write out:
+  // not a slash paradigm ("er/sie/es hat"), a formula ("Partizip I = Infinitiv + -d"),
+  // or a bare affix ("die Endung -st") — all illogical to type or take dictation on.
+  const typeable = (c: FlashcardWithMeta) => {
+    const h = headword(c);
+    return !/[/=]/.test(h) && !/(^|\s)[-+]/.test(h);
+  };
   const nounCount = scopedPool.filter((c) => articleOf(c) != null).length;
   const clozeCount = scopedPool.filter((c) => clozeFor(c) != null).length;
   const typeableCount = scopedPool.filter(typeable).length;
@@ -586,6 +590,16 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     if (m === "articles") base = base.filter((c) => articleOf(c) != null);
     if (m === "cloze") base = base.filter((c) => clozeFor(c) != null);
     if (m === "type" || m === "dictation") base = base.filter(typeable);
+    // Match shows bare word tiles, so two cards for the same word ("gut"/"gut",
+    // "der"/"der (Dativ)") would be indistinguishable — keep one per word.
+    if (m === "match") {
+      const seen = new Set<string>();
+      base = base.filter((c) => {
+        const k = headword(c).toLowerCase().replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+        if (seen.has(k)) return false;
+        seen.add(k); return true;
+      });
+    }
     const picked = cardsOverride
       ? cardsOverride
       : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !reviewOnly, reviewOnly, state.marked);
