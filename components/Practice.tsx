@@ -564,22 +564,25 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.xp, state.sessions, state.stats, state.days]);
 
-  // A card is "typeable" only if its headword is a single answer to write out:
-  // not a slash paradigm ("er/sie/es hat"), a formula ("Partizip I = Infinitiv + -d"),
-  // or a bare affix ("die Endung -st") — all illogical to type or take dictation on.
-  const typeable = (c: FlashcardWithMeta) => {
+  // A "quizzable" card is a normal vocab item we can build a generated question
+  // from. Reference cards — slash paradigms ("er/sie/es hat"), formulas
+  // ("Partizip I = Infinitiv + -d") and bare affixes ("die Endung -st") — can't be
+  // written and give themselves away in multiple choice, so they appear only as
+  // flashcards.
+  const quizzable = (c: FlashcardWithMeta) => {
     const h = headword(c);
     return !/[/=]/.test(h) && !/(^|\s)[-+]/.test(h);
   };
+  const QUIZ_MODES: Mode[] = ["choice", "type", "dictation", "listen", "match"];
   const nounCount = scopedPool.filter((c) => articleOf(c) != null).length;
   const clozeCount = scopedPool.filter((c) => clozeFor(c) != null).length;
-  const typeableCount = scopedPool.filter(typeable).length;
+  const quizCount = scopedPool.filter(quizzable).length;
   const modeAvailable = (m: Mode): boolean => {
     if (m === "articles") return nounCount >= 1;
     if (m === "cloze") return clozeCount >= 1;
-    if (m === "match") return scopedPool.length >= 2;
-    if (m === "choice" || m === "listen") return allUnlocked.length >= 2 && scopedPool.length >= 1;
-    if (m === "type" || m === "dictation") return typeableCount >= 1;
+    if (m === "match") return quizCount >= 2;
+    if (m === "choice" || m === "listen") return allUnlocked.length >= 2 && quizCount >= 1;
+    if (m === "type" || m === "dictation") return quizCount >= 1;
     return scopedPool.length >= 1;
   };
 
@@ -589,7 +592,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     let base = cardsOverride ?? (reviewOnly ? allUnlocked : scopedPool);
     if (m === "articles") base = base.filter((c) => articleOf(c) != null);
     if (m === "cloze") base = base.filter((c) => clozeFor(c) != null);
-    if (m === "type" || m === "dictation") base = base.filter(typeable);
+    if (QUIZ_MODES.includes(m)) base = base.filter(quizzable);
     // Match shows bare word tiles, so two cards for the same word ("gut"/"gut",
     // "der"/"der (Dativ)") would be indistinguishable — keep one per word.
     if (m === "match") {
@@ -624,7 +627,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const mixModeValid = (m: Mode, c: FlashcardWithMeta) => {
     if (m === "articles") return articleOf(c) != null;
     if (m === "cloze") return clozeFor(c) != null;
-    if (m === "type" || m === "dictation") return typeable(c);
+    if (QUIZ_MODES.includes(m)) return quizzable(c);
     return true;
   };
   const toggleMix = (m: Mode) => setMixSelected((s) => { const n = new Set(s); if (n.has(m)) n.delete(m); else n.add(m); return n; });
