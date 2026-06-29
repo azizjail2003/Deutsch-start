@@ -2,22 +2,24 @@
 
 import {
   ArrowRight, Award, Check, ChevronLeft, Ear, Flame, Keyboard, Languages, Layers, ListChecks,
-  Lock, Minus, Plus, Quote, RotateCcw, Shuffle, Sparkles, Star, Target, Trophy, Volume2, X, Zap,
+  Lock, Minus, Plus, Quote, Repeat, RotateCcw, Shuffle, Sparkles, Star, Target, Trophy, Volume2, X, Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { allCards, articleOf, clozeFor, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
+import { buildConjugationCards } from "@/data/conjugation";
 import {
   addSessionBonus, BADGES, deckAtIndex, distractorsFor, dueReviewCount, earnedBadgeIds,
   levelsIn, loadPracticeState, MARK_RELEASE_BOX, masteryOf, playEffect, practiceStreak, PracticeState,
   primeSpeech, recordResult, savePracticeState, selectSession, speakGerman, summarize, toggleMarked, unlockedCards,
 } from "@/lib/practice";
 
-type Mode = "flashcards" | "choice" | "type" | "articles" | "listen" | "match" | "cloze" | "dictation";
+type Mode = "flashcards" | "choice" | "type" | "articles" | "listen" | "match" | "cloze" | "dictation" | "conjugate";
 
-const MODES: { id: Mode; label: string; blurb: string; icon: typeof Layers }[] = [
+const MODES: { id: Mode; label: string; blurb: string; icon: typeof Layers; beta?: boolean }[] = [
   { id: "flashcards", label: "Flashcards", blurb: "Flip the card and check yourself", icon: Layers },
   { id: "choice", label: "Multiple choice", blurb: "Pick the right meaning", icon: ListChecks },
   { id: "type", label: "Type it", blurb: "Write the German word", icon: Keyboard },
+  { id: "conjugate", label: "Conjugation", blurb: "Conjugate a verb for each person", icon: Repeat, beta: true },
   { id: "cloze", label: "Fill the gap", blurb: "Complete the example sentence", icon: Quote },
   { id: "dictation", label: "Dictation", blurb: "Hear it, then type it", icon: Ear },
   { id: "articles", label: "der · die · das", blurb: "Train the noun genders", icon: Languages },
@@ -199,7 +201,7 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
   useEffect(() => {
     setFlipped(false); setPicked(null); setTyped(""); setRevealed(false); setOutcome(null); setTypedExact(true);
     if (mode === "listen" || mode === "dictation") speakGerman(card.de);
-    if (mode === "type" || mode === "cloze" || mode === "dictation") window.setTimeout(() => inputRef.current?.focus(), 50);
+    if (mode === "type" || mode === "cloze" || mode === "dictation" || mode === "conjugate") window.setTimeout(() => inputRef.current?.focus(), 50);
   }, [card.id, mode]);
 
   const options = useMemo(() => {
@@ -401,6 +403,31 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
       );
     }
 
+    if (mode === "conjugate" && card.conj) {
+      const cj = card.conj;
+      // Conjugation is graded strictly: ä ≠ a, so "fahrt" is wrong for "fährt".
+      const check = () => settle(normalize(typed) === normalize(card.de));
+      return (
+        <>
+          <div className="prompt-word conj-prompt">
+            <span className="flip-label">Conjugate · {cj.en}</span>
+            <strong>{cj.infinitive}</strong>
+            <small className="conj-person">{cj.person} …</small>
+            {cj.hint && <small className="conj-hint">{cj.hint}</small>}
+          </div>
+          <form className="type-row" onSubmit={(e) => { e.preventDefault(); if (!revealed) check(); else onNext(); }}>
+            <input ref={inputRef} value={typed} disabled={revealed} placeholder={`${cj.person} …`} onChange={(e) => setTyped(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} />
+            {!revealed && <button type="submit" className="check-button">Check</button>}
+          </form>
+          {revealed && (
+            <p className={`reveal-line ${outcome ? "ok" : "no"}`}>
+              {outcome ? "Correct! " : "Answer: "}<strong>{cj.person} {card.de}</strong>
+            </p>
+          )}
+        </>
+      );
+    }
+
     if (mode === "dictation") {
       const check = () => { const { correct, exact } = evaluateTyped(typed, card); setTypedExact(exact); settle(correct); };
       return (
@@ -530,6 +557,12 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     return scope === "all" ? allUnlocked : allUnlocked.filter((c) => c.level === scope);
   }, [allUnlocked, scope, lessonFilter]);
   const focusTitle = lessonFilter ? scopedPool[0]?.lessonTitle ?? "" : "";
+  // Synthetic conjugation prompts for the verbs unlocked in the current scope.
+  const conjPool = useMemo(() => {
+    const all = buildConjugationCards(allUnlocked);
+    if (lessonFilter) return all.filter((c) => c.level === lessonFilter.level && c.lesson === lessonFilter.lesson);
+    return scope === "all" ? all : all.filter((c) => c.level === scope);
+  }, [allUnlocked, scope, lessonFilter]);
   // Custom-mix question count is bounded by how many cards the current scope offers.
   const maxMix = Math.max(1, scopedPool.length);
   const mixPresets = useMemo(() => [6, 12, 20, 30, 50].filter((n) => n < maxMix), [maxMix]);
@@ -583,6 +616,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     if (m === "match") return quizCount >= 2;
     if (m === "choice" || m === "listen") return allUnlocked.length >= 2 && quizCount >= 1;
     if (m === "type" || m === "dictation") return quizCount >= 1;
+    if (m === "conjugate") return conjPool.length >= 1;
     return scopedPool.length >= 1;
   };
 
@@ -590,6 +624,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     primeSpeech();
     streakRef.current = 0;
     let base = cardsOverride ?? (reviewOnly ? allUnlocked : scopedPool);
+    if (m === "conjugate" && !cardsOverride) base = conjPool;
     if (m === "articles") base = base.filter((c) => articleOf(c) != null);
     if (m === "cloze") base = base.filter((c) => clozeFor(c) != null);
     if (QUIZ_MODES.includes(m)) base = base.filter(quizzable);
@@ -832,7 +867,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
           return (
             <button key={m.id} className={`mode-card ${available ? "" : "disabled"}`} disabled={!available} onClick={() => startSession(m.id)}>
               <span className="mode-icon"><Icon size={22} /></span>
-              <div><h3>{m.label}</h3><p>{m.blurb}</p></div>
+              <div><h3>{m.label}{m.beta && <span className="mode-beta">beta</span>}</h3><p>{m.blurb}</p></div>
               {available ? <ArrowRight size={18} /> : <Lock size={16} />}
             </button>
           );

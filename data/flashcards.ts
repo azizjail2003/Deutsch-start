@@ -30,6 +30,9 @@ export type Flashcard = {
   example?: string; // German example sentence.
   exampleEn?: string; // English of the example.
   note?: string; // Short usage hint.
+  // Present-tense conjugation prompt. Only set on the synthetic cards the
+  // conjugation trainer builds (see data/conjugation.ts) — never on deck cards.
+  conj?: { infinitive: string; person: string; en: string; hint?: string };
 };
 
 export type GermanLevel = "A1" | "A2" | "B1";

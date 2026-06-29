@@ -432,6 +432,7 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .mode-card.disabled:hover { transform: none; border-color: var(--line); box-shadow: none; }
 .mode-card .mode-icon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; background: color-mix(in srgb, var(--gold) 13%, var(--surface)); color: var(--gold); flex-shrink: 0; }
 .mode-card h3 { margin: 0 0 2px; font-size: 16px; font-weight: 600; }
+.mode-beta { margin-left: 8px; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; vertical-align: middle; color: var(--gold); background: color-mix(in srgb, var(--gold) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--gold) 35%, var(--line)); }
 .mode-card p { margin: 0; font-size: 13px; color: var(--muted); }
 .mode-card > svg:last-child { margin-left: auto; color: var(--muted); }
 
@@ -491,6 +492,9 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .prompt-word .flip-label { margin-bottom: 8px; }
 .prompt-word strong { display: block; font-family: var(--font-display), serif; font-weight: 600; font-size: clamp(26px, 5vw, 38px); line-height: 1.15; }
 .prompt-word small { display: block; color: var(--muted); margin-top: 8px; font-size: 14px; }
+/* Conjugation prompt: big infinitive, the target person, and the rule hint. */
+.conj-prompt .conj-person { margin-top: 10px; font-size: 18px; font-weight: 700; color: var(--gold); }
+.conj-prompt .conj-hint { margin-top: 4px; font-size: 13px; font-style: italic; color: var(--muted); }
 .flip-label { display: block; text-transform: uppercase; font-size: 11px; letter-spacing: .14em; font-weight: 700; color: var(--muted); }
 
 .flip-card { display: block; width: 100%; border: 0; background: none; padding: 0; cursor: pointer; perspective: 1200px; }
