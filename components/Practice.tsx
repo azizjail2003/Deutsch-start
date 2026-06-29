@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { allCards, articleOf, clozeFor, deckIndexOf, FlashcardWithMeta, GermanLevel, headword, totalDecks } from "@/data/flashcards";
-import { buildConjugationCards } from "@/data/conjugation";
+import { buildConjugationCards, CONJUGABLE_INFINITIVES } from "@/data/conjugation";
 import {
   addSessionBonus, BADGES, deckAtIndex, distractorsFor, dueReviewCount, earnedBadgeIds,
   levelsIn, loadPracticeState, MARK_RELEASE_BOX, masteryOf, playEffect, practiceStreak, PracticeState,
@@ -29,8 +29,9 @@ const MODES: { id: Mode; label: string; blurb: string; icon: typeof Layers; beta
 
 const SESSION_SIZE = 12;
 const MATCH_GROUP = 5;
-// Modes that can be mixed card-by-card (match is a whole-screen game, excluded).
-const MIXABLE: Mode[] = ["flashcards", "choice", "type", "cloze", "dictation", "articles", "listen"];
+// Exercise types offered in the custom mix. Card-by-card modes interleave;
+// "match" can't (it's a whole-board game) so it runs as a round at the end.
+const MIXABLE: Mode[] = ["flashcards", "choice", "type", "conjugate", "cloze", "dictation", "articles", "listen", "match"];
 
 // A snapshot of an in-progress session, saved so leaving Practice (or closing
 // the tab) mid-session offers a "Continue" instead of losing your place.
@@ -43,6 +44,7 @@ type SessionSnapshot = {
   correctCount: number;
   wrongCards: FlashcardWithMeta[];
   answered: string[];
+  exited?: boolean; // true once the learner pressed Exit — pause, don't auto-resume
 };
 function loadSnapshot(): SessionSnapshot | null {
   if (typeof window === "undefined") return null;
@@ -528,6 +530,9 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const [lessonFilter, setLessonFilter] = useState<{ level: GermanLevel; lesson: number } | null>(null);
   const [toasts, setToasts] = useState<{ id: number; text: string }[]>([]);
   const [resumable, setResumable] = useState<SessionSnapshot | null>(null);
+  // A bonus "match pairs" round that plays after the card-by-card part of a mix.
+  const [mixMatchCards, setMixMatchCards] = useState<FlashcardWithMeta[] | null>(null);
+  const [mixMatchPhase, setMixMatchPhase] = useState(false);
   const streakRef = useRef(0);
   const toastIdRef = useRef(0);
   // Cards already scored this session — so stepping Back and re-answering a card
@@ -541,14 +546,22 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   };
 
   useEffect(() => { savePracticeState(state); }, [state]);
-  // Pick up an unfinished session left over from a previous visit.
-  useEffect(() => { setResumable(loadSnapshot()); }, []);
+  // On return to Practice: jump straight back into an interrupted session
+  // (switched tab / reloaded). If it was deliberately Exited, just offer the
+  // Continue banner instead of forcing the learner back in.
+  useEffect(() => {
+    const snap = loadSnapshot();
+    if (!snap) return;
+    if (snap.exited) setResumable(snap);
+    else applySnapshot(snap);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Continuously snapshot the live session so leaving mid-way can be resumed.
   useEffect(() => {
     if (session && mode && !done) {
       const snap: SessionSnapshot = {
         mode, sessionModes, cards: session, index, correctCount, wrongCards,
-        answered: [...answeredRef.current],
+        answered: [...answeredRef.current], exited: false,
       };
       try { window.localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(snap)); } catch { /* ignore */ }
       setResumable(snap);
@@ -683,6 +696,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
       : selectSession(base, state.stats, m === "match" ? Math.min(MATCH_GROUP * 2, base.length) : SESSION_SIZE, weakOnly && !reviewOnly, reviewOnly, state.marked);
     const cards = m === "match" ? shuffleArray(picked) : picked;
     if (!cards.length) return;
+    setMixMatchCards(null); setMixMatchPhase(false);
     setSessionModes(null); setMode(m); setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false);
   };
 
@@ -702,10 +716,25 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const mixModeValid = (m: Mode, c: FlashcardWithMeta) => {
     if (m === "articles") return articleOf(c) != null;
     if (m === "cloze") return clozeFor(c) != null;
+    if (m === "conjugate") return CONJUGABLE_INFINITIVES.has(headword(c).toLowerCase());
+    if (m === "match") return false; // match runs as a whole-board round, not per card
     if (QUIZ_MODES.includes(m)) return quizzable(c);
     return true;
   };
   const toggleMix = (m: Mode) => setMixSelected((s) => { const n = new Set(s); if (n.has(m)) n.delete(m); else n.add(m); return n; });
+
+  // Dedupe by word so match tiles aren't ambiguous; cap to a couple of groups.
+  const matchRoundFrom = (cards: FlashcardWithMeta[]): FlashcardWithMeta[] | null => {
+    const seen = new Set<string>();
+    const uniq = cards.filter((c) => {
+      if (!quizzable(c)) return false;
+      const k = headword(c).toLowerCase().replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    });
+    return uniq.length >= 2 ? shuffleArray(uniq).slice(0, MATCH_GROUP * 2) : null;
+  };
+
   const startMix = () => {
     primeSpeech();
     streakRef.current = 0;
@@ -713,13 +742,37 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     const cards = selectSession(scopedPool, state.stats, mixCount, weakOnly, false, state.marked);
     if (!cards.length || mixSelected.size === 0) return;
     const chosen = [...mixSelected];
+    const wantsMatch = chosen.includes("match");
+    const perCard = chosen.filter((m) => m !== "match");
+
+    // Only "conjugate" picked → run a pure conjugation session.
+    if (!wantsMatch && perCard.length === 1 && perCard[0] === "conjugate") {
+      setMixOpen(false); startSession("conjugate"); return;
+    }
+    // Only "match" picked → just run a match session.
+    if (perCard.length === 0) {
+      const mc = matchRoundFrom(cards);
+      if (!mc) return;
+      setMixMatchCards(null); setMixMatchPhase(false);
+      setSessionModes(null); setMode("match"); setSession(mc); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false); setMixOpen(false);
+      return;
+    }
+
     const modes = cards.map((c) => {
-      const valid = chosen.filter((m) => mixModeValid(m, c));
+      const valid = perCard.filter((m) => mixModeValid(m, c));
       const poolM = valid.length ? valid : (["flashcards"] as Mode[]);
       return poolM[Math.floor(Math.random() * poolM.length)];
     });
+    // Turn slots assigned "conjugate" into an actual conjugation prompt.
+    const finalCards = cards.map((c, i) => {
+      if (modes[i] !== "conjugate") return c;
+      const forms = buildConjugationCards([c]);
+      return forms.length ? forms[Math.floor(Math.random() * forms.length)] : c;
+    });
+    setMixMatchCards(wantsMatch ? matchRoundFrom(cards) : null);
+    setMixMatchPhase(false);
     setSessionModes(modes); setMode("flashcards");
-    setSession(cards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false); setMixOpen(false);
+    setSession(finalCards); setIndex(0); setCorrectCount(0); setWrongCards([]); setDone(false); setMixOpen(false);
   };
 
   const handleResult = (id: string, correct: boolean) => {
@@ -757,18 +810,20 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const next = () => {
     if (!session) return;
     if (index + 1 < session.length) setIndex(index + 1);
-    else setDone(true);
+    else if (mixMatchCards && mixMatchCards.length >= 2 && !mixMatchPhase) {
+      // Card-by-card part finished; play the bonus match round.
+      clearSnapshot(); setResumable(null);
+      setMixMatchPhase(true);
+    } else setDone(true);
   };
 
   const prev = () => setIndex((i) => Math.max(0, i - 1));
 
-  const exit = () => { setSession(null); setMode(null); setDone(false); setSessionModes(null); };
-
-  // Restore the in-progress session saved on a previous visit.
-  const resume = () => {
-    const snap = resumable;
-    if (!snap || !snap.cards.length) return;
+  // Drop straight into a saved session (used on return and from the banner).
+  const applySnapshot = (snap: SessionSnapshot) => {
+    if (!snap.cards.length) return;
     answeredRef.current = new Set(snap.answered);
+    setMixMatchCards(null); setMixMatchPhase(false);
     setSessionModes(snap.sessionModes);
     setMode(snap.mode);
     setSession(snap.cards);
@@ -777,6 +832,23 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
     setWrongCards(snap.wrongCards);
     setDone(false);
   };
+
+  const exit = () => {
+    // Keep the session resumable but mark it paused, so coming back lands on
+    // the home screen with a Continue banner rather than auto-reopening it.
+    if (session && mode && !done && !mixMatchPhase) {
+      const snap: SessionSnapshot = {
+        mode, sessionModes, cards: session, index, correctCount, wrongCards,
+        answered: [...answeredRef.current], exited: true,
+      };
+      try { window.localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(snap)); } catch { /* ignore */ }
+      setResumable(snap);
+    }
+    setSession(null); setMode(null); setDone(false); setSessionModes(null);
+    setMixMatchCards(null); setMixMatchPhase(false);
+  };
+
+  const resume = () => { if (resumable) applySnapshot(resumable); };
   const discardResumable = () => { clearSnapshot(); setResumable(null); };
 
   const setUpTo = (value: number | null) => setState((s) => ({ ...s, studiedUpTo: value }));
@@ -804,6 +876,23 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
               <button className="text-button" onClick={exit}><ChevronLeft size={15} /> Back to practice</button>
             </div>
           </div>
+          <ToastHost toasts={toasts} />
+        </div>
+      );
+    }
+
+    if (mixMatchPhase && mixMatchCards) {
+      return (
+        <div className="practice-root focus">
+          <div className="session-bar">
+            <button className="back-button" onClick={exit}><X size={17} /> Exit</button>
+            <span className="session-title">Bonus round · Match pairs</span>
+          </div>
+          <MatchGame
+            cards={mixMatchCards}
+            onResult={(id, correct) => setState((s) => recordResult(s, id, correct))}
+            onDone={() => { setMixMatchPhase(false); setDone(true); }}
+          />
           <ToastHost toasts={toasts} />
         </div>
       );

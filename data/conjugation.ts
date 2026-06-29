@@ -17,6 +17,9 @@ export type Person = "ich" | "du" | "er/sie/es" | "wir" | "ihr" | "sie/Sie";
 
 export const PERSONS: Person[] = ["ich", "du", "er/sie/es", "wir", "ihr", "sie/Sie"];
 
+// Infinitives that have a paradigm — used to decide if a verb card in a custom
+// mix can be turned into a conjugation prompt. Populated below the table.
+
 export type VerbParadigm = {
   infinitive: string;
   en: string;
@@ -84,6 +87,9 @@ export const VERB_PARADIGMS: VerbParadigm[] = [
   { infinitive: "mögen", en: "to like", hint: "modal: ich = er (mag)", forms: ["mag", "magst", "mag", "mögen", "mögt", "mögen"] },
   { infinitive: "möchten", en: "would like (to)", hint: "modal: ich = er (möchte)", forms: ["möchte", "möchtest", "möchte", "möchten", "möchtet", "möchten"] },
 ];
+
+/** Lowercased infinitives that have a conjugation paradigm. */
+export const CONJUGABLE_INFINITIVES = new Set(VERB_PARADIGMS.map((v) => v.infinitive.toLowerCase()));
 
 /**
  * Build synthetic practice cards for the verbs whose infinitive is already
