@@ -32,6 +32,32 @@ const MATCH_GROUP = 5;
 // Modes that can be mixed card-by-card (match is a whole-screen game, excluded).
 const MIXABLE: Mode[] = ["flashcards", "choice", "type", "cloze", "dictation", "articles", "listen"];
 
+// A snapshot of an in-progress session, saved so leaving Practice (or closing
+// the tab) mid-session offers a "Continue" instead of losing your place.
+const ACTIVE_SESSION_KEY = "deutsch-start-active-session";
+type SessionSnapshot = {
+  mode: Mode;
+  sessionModes: Mode[] | null;
+  cards: FlashcardWithMeta[];
+  index: number;
+  correctCount: number;
+  wrongCards: FlashcardWithMeta[];
+  answered: string[];
+};
+function loadSnapshot(): SessionSnapshot | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(ACTIVE_SESSION_KEY);
+    if (!raw) return null;
+    const snap = JSON.parse(raw) as SessionSnapshot;
+    if (!snap.cards?.length || snap.index >= snap.cards.length) return null;
+    return snap;
+  } catch { return null; }
+}
+function clearSnapshot() {
+  try { window.localStorage.removeItem(ACTIVE_SESSION_KEY); } catch { /* ignore */ }
+}
+
 function normalize(value: string): string {
   return value
     .trim()
@@ -501,6 +527,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const [mixCount, setMixCount] = useState(12);
   const [lessonFilter, setLessonFilter] = useState<{ level: GermanLevel; lesson: number } | null>(null);
   const [toasts, setToasts] = useState<{ id: number; text: string }[]>([]);
+  const [resumable, setResumable] = useState<SessionSnapshot | null>(null);
   const streakRef = useRef(0);
   const toastIdRef = useRef(0);
   // Cards already scored this session — so stepping Back and re-answering a card
@@ -514,8 +541,19 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   };
 
   useEffect(() => { savePracticeState(state); }, [state]);
-  // A fresh session clears the answered set.
-  useEffect(() => { answeredRef.current = new Set(); }, [session]);
+  // Pick up an unfinished session left over from a previous visit.
+  useEffect(() => { setResumable(loadSnapshot()); }, []);
+  // Continuously snapshot the live session so leaving mid-way can be resumed.
+  useEffect(() => {
+    if (session && mode && !done) {
+      const snap: SessionSnapshot = {
+        mode, sessionModes, cards: session, index, correctCount, wrongCards,
+        answered: [...answeredRef.current],
+      };
+      try { window.localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(snap)); } catch { /* ignore */ }
+      setResumable(snap);
+    }
+  }, [session, mode, done, index, correctCount, wrongCards, sessionModes]);
   useEffect(() => {
     const onFirst = () => { primeSpeech(); window.removeEventListener("pointerdown", onFirst); };
     window.addEventListener("pointerdown", onFirst, { once: true });
@@ -527,6 +565,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
       setState((s) => addSessionBonus(s, correctCount, session.length));
       const pct = Math.round((correctCount / session.length) * 100);
       pushToast(`Session done — ${correctCount}/${session.length} · ${pct}%`);
+      clearSnapshot(); setResumable(null); // a completed session is not resumable
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
@@ -623,6 +662,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const startSession = (m: Mode, cardsOverride?: FlashcardWithMeta[], reviewOnly = false) => {
     primeSpeech();
     streakRef.current = 0;
+    answeredRef.current = new Set();
     let base = cardsOverride ?? (reviewOnly ? allUnlocked : scopedPool);
     if (m === "conjugate" && !cardsOverride) base = conjPool;
     if (m === "articles") base = base.filter((c) => articleOf(c) != null);
@@ -669,6 +709,7 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const startMix = () => {
     primeSpeech();
     streakRef.current = 0;
+    answeredRef.current = new Set();
     const cards = selectSession(scopedPool, state.stats, mixCount, weakOnly, false, state.marked);
     if (!cards.length || mixSelected.size === 0) return;
     const chosen = [...mixSelected];
@@ -722,6 +763,21 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const prev = () => setIndex((i) => Math.max(0, i - 1));
 
   const exit = () => { setSession(null); setMode(null); setDone(false); setSessionModes(null); };
+
+  // Restore the in-progress session saved on a previous visit.
+  const resume = () => {
+    const snap = resumable;
+    if (!snap || !snap.cards.length) return;
+    answeredRef.current = new Set(snap.answered);
+    setSessionModes(snap.sessionModes);
+    setMode(snap.mode);
+    setSession(snap.cards);
+    setIndex(Math.min(snap.index, snap.cards.length - 1));
+    setCorrectCount(snap.correctCount);
+    setWrongCards(snap.wrongCards);
+    setDone(false);
+  };
+  const discardResumable = () => { clearSnapshot(); setResumable(null); };
 
   const setUpTo = (value: number | null) => setState((s) => ({ ...s, studiedUpTo: value }));
 
@@ -814,6 +870,19 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
 
   return (
     <div className="practice-root">
+      {resumable && (
+        <div className="resume-banner">
+          <button className="resume-main" onClick={resume}>
+            <RotateCcw size={18} />
+            <span className="resume-text">
+              <strong>Continue where you left off</strong>
+              <small>{resumable.sessionModes ? "Mixed practice" : MODES.find((m) => m.id === resumable.mode)?.label} · card {Math.min(resumable.index, resumable.cards.length - 1) + 1} of {resumable.cards.length}</small>
+            </span>
+            <ArrowRight size={18} />
+          </button>
+          <button className="resume-x" aria-label="Discard saved session" onClick={discardResumable}><X size={16} /></button>
+        </div>
+      )}
       <div className="practice-stats">
         <div className="pstat"><strong>{summary.total}</strong><span>words in range</span></div>
         <div className="pstat known"><strong>{summary.knownCount}</strong><span>known</span></div>

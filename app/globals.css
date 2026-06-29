@@ -338,6 +338,17 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .back-button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--muted); font-weight: 700; cursor: pointer; }
 .back-button:hover { color: var(--ink); }
 
+/* "Continue where you left off" banner for an unfinished session. */
+.resume-banner { display: flex; align-items: stretch; gap: 8px; margin: 0 0 16px; }
+.resume-main { flex: 1; display: flex; align-items: center; gap: 12px; text-align: left; border: 1px solid var(--gold); background: color-mix(in srgb, var(--gold) 12%, var(--surface)); color: var(--ink); border-radius: 16px; padding: 14px 16px; cursor: pointer; transition: background .15s ease, transform .12s ease; }
+.resume-main:hover { background: color-mix(in srgb, var(--gold) 20%, var(--surface)); transform: translateY(-1px); }
+.resume-main > svg:first-child { color: var(--gold); flex-shrink: 0; }
+.resume-text { display: flex; flex-direction: column; line-height: 1.3; }
+.resume-text strong { font-weight: 700; font-size: 15px; }
+.resume-text small { color: var(--muted); font-size: 13px; }
+.resume-main > svg:last-child { margin-left: auto; flex-shrink: 0; color: var(--muted); }
+.resume-x { flex-shrink: 0; display: grid; place-items: center; width: 44px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 16px; cursor: pointer; transition: color .15s ease, border-color .15s ease; }
+.resume-x:hover { color: var(--ink); border-color: var(--gold); }
 .practice-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 0 14px; }
 .pstat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
 .pstat strong { display: block; font-family: var(--font-display), serif; font-weight: 600; font-size: 26px; line-height: 1; }

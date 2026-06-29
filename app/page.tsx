@@ -2,7 +2,7 @@
 
 import {
   ArrowRight, ArrowUpRight, Award, BookOpen, Check, ChevronLeft, ChevronRight, Clock, Download, Dumbbell,
-  Flame, GraduationCap, HardDriveDownload, Headphones, Languages, Library, Lock, MapPin, Mic, Moon, Palette,
+  Flame, GraduationCap, HardDriveDownload, Headphones, Languages, Library, Lock, Maximize, Minimize, MapPin, Mic, Moon, Palette,
   PenLine, Play, RotateCcw, Search, Settings, Sparkles, Star, Sun, Target, Trash2, Trophy, Type, Upload,
   Volume2, X, Zap,
 } from "lucide-react";
@@ -84,6 +84,7 @@ export default function Home() {
   const [showNext, setShowNext] = useState(false);
   const [, setTick] = useState(0);
   const [confirm, setConfirm] = useState<{ title: string; message: string; confirmLabel: string; danger: boolean; onConfirm: () => void } | null>(null);
+  const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
     setDark(localStorage.getItem("deutsch-start-theme") === "dark");
@@ -155,6 +156,17 @@ export default function Home() {
   const undoPlanDay = () => { if (planToast) { setPlan((p) => unmarkDay(p, planToast.day)); setPlanToast(null); } };
   useEffect(() => { document.documentElement.dataset.theme = dark ? "dark" : "light"; }, [dark]);
   useEffect(() => {
+    const doc = document as Document & { webkitFullscreenElement?: Element };
+    const sync = () => setFullscreen(Boolean(doc.fullscreenElement || doc.webkitFullscreenElement));
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+    sync();
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+    };
+  }, []);
+  useEffect(() => {
     const root = document.documentElement;
     if (accent) {
       const safe = readableAccent(accent);
@@ -169,6 +181,12 @@ export default function Home() {
   }, [accent]);
   useEffect(() => { document.documentElement.style.zoom = String(uiScale); }, [uiScale]);
   const toggleTheme = () => setDark((v) => { const n = !v; localStorage.setItem("deutsch-start-theme", n ? "dark" : "light"); return n; });
+  const toggleFullscreen = () => {
+    const doc = document as Document & { webkitFullscreenElement?: Element; webkitExitFullscreen?: () => void };
+    const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+    if (doc.fullscreenElement || doc.webkitFullscreenElement) (doc.exitFullscreen || doc.webkitExitFullscreen)?.call(doc);
+    else (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  };
   const changeAccent = (v: string) => { setAccent(v); localStorage.setItem("deutsch-start-accent", v); };
   const changeScale = (v: number) => { setUiScale(v); localStorage.setItem("deutsch-start-scale", String(v)); };
   const resetAppearance = () => { changeAccent(""); changeScale(1); };
@@ -275,6 +293,9 @@ export default function Home() {
           <div className="header-actions">
             <span className="free-pill"><Sparkles size={13} /> 100% free</span>
             <SoundControl sound={sound} volume={volume} onToggle={toggleSound} onVolume={changeVolume} />
+            <button className="icon-button" aria-label={fullscreen ? "Exit full screen" : "Enter full screen"} onClick={toggleFullscreen}>
+              {fullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+            </button>
             <button className="icon-button" aria-label="Toggle color theme" onClick={toggleTheme}>
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
