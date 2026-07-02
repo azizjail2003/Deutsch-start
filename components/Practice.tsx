@@ -416,7 +416,7 @@ function CardExercise({ card, mode, pool, onResult, onNext, isLast }: {
           <div className="prompt-word">
             <span className="flip-label">Fill the gap</span>
             <strong className="cloze-sentence">{cloze ? cloze.sentence : card.de}</strong>
-            <small>{card.en}</small>
+            <small>{card.exampleEn ?? card.en}</small>
           </div>
           <form className="type-row" onSubmit={(e) => { e.preventDefault(); if (!revealed) check(); else onNext(); }}>
             <input ref={inputRef} value={typed} disabled={revealed} placeholder="Type the missing word…" onChange={(e) => setTyped(e.target.value)} autoComplete="off" autoCorrect="off" spellCheck={false} />
@@ -624,6 +624,9 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
   const streakDays = practiceStreak(state.days);
   const dueCount = useMemo(() => dueReviewCount(allUnlocked, state.stats), [allUnlocked, state.stats]);
   const trickyCards = useMemo(() => allUnlocked.filter((c) => state.marked.includes(c.id)), [allUnlocked, state.marked]);
+  // Every card whose most recent answer was wrong, across all past sessions — an
+  // unresolved-mistakes deck that only clears a card once it's recalled correctly.
+  const mistakeCards = useMemo(() => allUnlocked.filter((c) => state.stats[c.id]?.lastWrong), [allUnlocked, state.stats]);
 
   useEffect(() => {
     if (scope !== "all" && !unlockedLevels.includes(scope)) setScope("all");
@@ -702,6 +705,16 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
 
   const startTricky = () => {
     if (trickyCards.length) startSession("flashcards", shuffleArray(trickyCards).slice(0, SESSION_SIZE));
+  };
+
+  const startMistakes = () => {
+    if (!mistakeCards.length) return;
+    // Actively re-test misses in multiple choice when we can (fair now that
+    // distractors are type-matched); fall back to flashcards for reference cards
+    // that can't be quizzed.
+    const quiz = mistakeCards.filter(quizzable);
+    const useChoice = quiz.length >= 2 && allUnlocked.length >= 2;
+    startSession(useChoice ? "choice" : "flashcards", shuffleArray(useChoice ? quiz : mistakeCards).slice(0, SESSION_SIZE));
   };
 
   // The Progress page can request a "review my weakest words" session.
@@ -991,6 +1004,9 @@ export default function Practice({ focus, onFocusHandled, planIndex, reviewSigna
         </button>
         <button className="review-btn tricky" disabled={trickyCards.length === 0} onClick={startTricky}>
           <Star size={15} /> {trickyCards.length > 0 ? `Tricky ${trickyCards.length}` : "No tricky words"}
+        </button>
+        <button className="review-btn mistakes" disabled={mistakeCards.length === 0} onClick={startMistakes}>
+          <Target size={15} /> {mistakeCards.length > 0 ? `Mistakes ${mistakeCards.length}` : "No mistakes"}
         </button>
       </div>
 

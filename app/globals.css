@@ -414,6 +414,21 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 @keyframes confirm-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .confirm-overlay, .confirm-panel { animation: none; } }
 
+/* What's new note */
+.whatsnew-btn { position: relative; }
+.whatsnew-btn.has-news::after { content: ""; position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); border: 2px solid var(--paper); }
+.whatsnew-panel { position: relative; width: min(460px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 26px 24px 20px; box-shadow: var(--shadow); text-align: left; animation: confirm-pop .2s ease; max-height: calc(100vh - 40px); overflow-y: auto; }
+.whatsnew-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: var(--gold-soft); background: color-mix(in srgb, var(--gold) 14%, var(--surface)); border-radius: 999px; padding: 5px 11px; }
+.whatsnew-panel h3 { font-family: var(--font-display), serif; font-weight: 600; font-size: 22px; line-height: 1.22; margin: 12px 0 6px; }
+.whatsnew-sub { margin: 0 0 18px; color: var(--muted); line-height: 1.5; font-size: 14px; }
+.whatsnew-list { list-style: none; margin: 0 0 22px; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.whatsnew-list li { display: flex; gap: 12px; align-items: flex-start; }
+.whatsnew-ic { flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: color-mix(in srgb, var(--gold) 12%, var(--surface)); color: var(--gold-soft); }
+.whatsnew-text { display: flex; flex-direction: column; gap: 2px; }
+.whatsnew-text strong { font-weight: 700; font-size: 15px; }
+.whatsnew-text small { color: var(--muted); line-height: 1.5; font-size: 13.5px; }
+@media (prefers-reduced-motion: reduce) { .whatsnew-panel { animation: none; } }
+
 .lesson-control { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; margin-bottom: 18px; box-shadow: var(--shadow-sm); }
 .lesson-control-head { display: flex; align-items: center; gap: 9px; font-size: 15px; margin-bottom: 12px; flex-wrap: wrap; }
 .lesson-control-head strong { font-weight: 700; }
@@ -488,6 +503,8 @@ footer .foot-disclaimer { color: color-mix(in srgb, var(--muted) 80%, var(--line
 .review-btn.tricky:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-soft); }
 .review-btn.tricky svg { fill: currentColor; }
 .review-btn.tricky:disabled svg { fill: none; }
+.review-btn.mistakes { border-color: var(--line); background: var(--surface); color: var(--ink); }
+.review-btn.mistakes:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-soft); }
 .session-progress { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin-bottom: 24px; }
 .session-progress > div { height: 100%; background: var(--gold); transition: width .3s ease; }
 

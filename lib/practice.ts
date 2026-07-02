@@ -90,6 +90,10 @@ export type Mastery = "new" | "learning" | "known";
 
 const BOX_DAYS = [0, 1, 2, 4, 9, 21]; // Leitner review intervals (days)
 const KNOWN_BOX = 4;
+// A card only counts as "known" once it has survived enough correct reviews to
+// reach this box — one lucky guess (box 1) stays "learning", so mastery/badges
+// reflect real retention rather than a single exposure.
+const MASTERY_BOX = 2;
 const DAY_MS = 86400000;
 const XP_PER_CORRECT = 2;
 // A marked ("tricky") word auto-releases once recalled correctly this many
@@ -120,14 +124,17 @@ function normalizeStat(stat?: Partial<CardStat> & { streak?: number }): CardStat
 
 export function masteryOf(stat: CardStat | undefined): Mastery {
   const s = normalizeStat(stat);
-  if (s.seen === 0) return "new";        // never practised
-  if (s.lastWrong) return "learning";    // missed it most recently
-  return "known";                        // answered correctly, currently recalling it
+  if (s.seen === 0) return "new";                       // never practised
+  if (s.lastWrong || s.box < MASTERY_BOX) return "learning"; // missed recently, or not yet recalled enough times
+  return "known";                                       // recalled correctly across several reviews
 }
 
 export function recordResult(state: PracticeState, id: string, correct: boolean): PracticeState {
   const prev = normalizeStat(state.stats[id]);
-  const box = correct ? Math.min(prev.box + 1, BOX_DAYS.length - 1) : 0;
+  // Gentle Leitner demotion: a single slip drops the card two boxes rather than
+  // resetting a well-known word all the way to "relearn today". It still becomes
+  // lastWrong (so it counts as a mistake and resurfaces), just not over-drilled.
+  const box = correct ? Math.min(prev.box + 1, BOX_DAYS.length - 1) : Math.max(0, prev.box - 2);
   const next: CardStat = {
     seen: prev.seen + 1,
     correct: prev.correct + (correct ? 1 : 0),
@@ -238,10 +245,21 @@ export function selectSession(
   let ordered: FlashcardWithMeta[];
   if (reviewOnly) {
     const now = Date.now();
-    // Marked words are always considered due, so they keep coming back.
-    const due = pool.filter((c) => { const s = normalizeStat(stats[c.id]); return s.seen === 0 || s.due <= now || markedSet.has(c.id); });
-    due.sort((a, b) => normalizeStat(stats[a.id]).due - normalizeStat(stats[b.id]).due);
-    ordered = due;
+    // Genuine reviews come first, most-overdue first: previously-seen cards whose
+    // scheduled time has arrived, plus marked words (always treated as due). This
+    // keeps "Review N due" honest — the due cards always lead the session.
+    const dueReviews = pool.filter((c) => {
+      const s = normalizeStat(stats[c.id]);
+      return markedSet.has(c.id) || (s.seen > 0 && s.due <= now);
+    });
+    dueReviews.sort((a, b) => normalizeStat(stats[a.id]).due - normalizeStat(stats[b.id]).due);
+    // Never-seen cards only backfill once the real reviews run out, so they can
+    // never sort ahead of (their due===0 used to bury) genuine reviews.
+    const filler = shuffle(pool.filter((c) => {
+      const s = normalizeStat(stats[c.id]);
+      return !markedSet.has(c.id) && s.seen === 0;
+    }));
+    ordered = [...dueReviews, ...filler];
   } else {
     const source = weakOnly ? pool.filter((c) => masteryOf(stats[c.id]) !== "known") : pool;
     const wrong: FlashcardWithMeta[] = [];
@@ -285,11 +303,23 @@ export function distractorsFor(
   const sameWord = deKey(card);
   // Never offer a distractor that is itself a valid meaning of the prompt word
   // (e.g. "the (masculine)" when the prompt "der" is tagged as a relative pronoun).
-  const candidates = pool
-    .filter((c) => c.id !== card.id && c[field] !== correct && deKey(c) !== sameWord)
-    .map((c) => c[field]);
-  const unique = Array.from(new Set(candidates));
-  return shuffle(unique).slice(0, howMany);
+  const eligible = pool.filter(
+    (c) => c.id !== card.id && c[field] !== correct && deKey(c) !== sameWord,
+  );
+  const uniqueFrom = (cards: FlashcardWithMeta[]) =>
+    Array.from(new Set(cards.map((c) => c[field])));
+  // Prefer distractors of the same word type (number↔number, noun↔noun, …) so the
+  // options genuinely compete instead of being ruled out by category — a "seven"
+  // prompt shouldn't offer "Hello / to drive / the" as its only alternatives.
+  const sameType = shuffle(uniqueFrom(eligible.filter((c) => c.type === card.type)));
+  const picked = sameType.slice(0, howMany);
+  if (picked.length < howMany) {
+    for (const d of shuffle(uniqueFrom(eligible.filter((c) => c.type !== card.type)))) {
+      if (picked.length >= howMany) break;
+      if (!picked.includes(d)) picked.push(d);
+    }
+  }
+  return picked;
 }
 
 // --- Speech ----------------------------------------------------------------

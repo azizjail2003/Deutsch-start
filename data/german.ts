@@ -179,7 +179,7 @@ const a2Raw: RawLesson[] = [
   { number: 31, title: "Infinitive without \"zu\"", grammar: "Verbs taking a bare infinitive (modals, gehen, sehen …)", vocabulary: "Everyday activities" },
   { number: 32, title: "Past Perfect Tense", grammar: "Plusquamperfekt for the earlier past", vocabulary: "Events before other past events" },
   { number: 33, title: "Conjunctions – nachdem and seitdem", grammar: "Temporal nachdem and seitdem with tense sequence", vocabulary: "Sequencing past events" },
-  { number: 34, title: "Two way prepositions", grammar: "Wechselprä­positionen (accusative vs. dative)", vocabulary: "Location vs. direction" },
+  { number: 34, title: "Two way prepositions", grammar: "Wechselpräpositionen (accusative vs. dative)", vocabulary: "Location vs. direction" },
   { number: 35, title: "Expressing assumptions", grammar: "Adverbs of probability and assumption (wahrscheinlich, vielleicht)", vocabulary: "Guessing and probability" },
   { number: 36, title: "Polite requests", grammar: "Konjunktiv II (könnten, würden) for politeness", vocabulary: "Requests and service situations" },
   { number: 37, title: "Describing a picture", grammar: "Position and description language", vocabulary: "im Vordergrund, im Hintergrund, links, rechts" },

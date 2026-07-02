@@ -24,8 +24,20 @@ import {
 import Practice from "@/components/Practice";
 import SoundControl from "@/components/SoundControl";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import WhatsNew, { WhatsNewItem } from "@/components/WhatsNew";
 import Logo from "@/components/Logo";
 import { clearAllData, exportBackup, importBackup, readableAccent } from "@/lib/settings";
+
+// Bump this tag whenever there's a new batch of features to announce. Returning
+// learners (anyone with saved progress) see the note once; then it's dismissed.
+const WHATS_NEW_VERSION = "2026-07-practice";
+const WHATS_NEW_KEY = "deutsch-start-whatsnew";
+const WHATS_NEW_ITEMS: WhatsNewItem[] = [
+  { icon: Target, title: "Review Mistakes deck", body: "A new button on the Practice tab gathers every word you’ve missed — across all your sessions — so you can clear them for good." },
+  { icon: Check, title: "Fairer multiple choice", body: "Answer options now match the word’s type, so you’re genuinely recalling the meaning instead of ruling out the odd one out." },
+  { icon: RotateCcw, title: "Smarter reviews", body: "Words that are actually due now come up first, and a single slip no longer drops a well-known word all the way back to the start." },
+  { icon: Award, title: "Honest progress", body: "A word counts as “known” only once you’ve recalled it a few times — your mastery bar and badges now reflect real memory." },
+];
 
 const skillIcon: Record<SkillId, React.ComponentType<{ size?: number }>> = {
   grammar: BookOpen, vocabulary: Library, listening: Headphones,
@@ -85,6 +97,8 @@ export default function Home() {
   const [, setTick] = useState(0);
   const [confirm, setConfirm] = useState<{ title: string; message: string; confirmLabel: string; danger: boolean; onConfirm: () => void } | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+  const [hasNews, setHasNews] = useState(false);
 
   useEffect(() => {
     setDark(localStorage.getItem("deutsch-start-theme") === "dark");
@@ -96,7 +110,23 @@ export default function Home() {
     setPlan(loadPlanState());
     setPractice(loadPracticeState());
     setHydrated(true);
+    // Show the "what's new" note once to returning learners (anyone with saved
+    // progress). First-time visitors have nothing to catch up on, so we just mark
+    // it seen without interrupting them.
+    try {
+      if (localStorage.getItem(WHATS_NEW_KEY) !== WHATS_NEW_VERSION) {
+        const returning = !!(localStorage.getItem("deutsch-start-practice-v1") || localStorage.getItem("deutsch-start-plan-v1"));
+        if (returning) { setWhatsNewOpen(true); setHasNews(true); }
+        else localStorage.setItem(WHATS_NEW_KEY, WHATS_NEW_VERSION);
+      }
+    } catch { /* localStorage unavailable — skip the note */ }
   }, []);
+
+  const dismissWhatsNew = () => {
+    try { localStorage.setItem(WHATS_NEW_KEY, WHATS_NEW_VERSION); } catch { /* ignore */ }
+    setHasNews(false);
+    setWhatsNewOpen(false);
+  };
   useEffect(() => { if (hydrated) savePlanState(plan); }, [plan, hydrated]);
   // Keep plan status fresh across midnight, and roll the anchor (resetting the
   // streak) if a due day was missed.
@@ -292,6 +322,9 @@ export default function Home() {
           </nav>
           <div className="header-actions">
             <span className="free-pill"><Sparkles size={13} /> 100% free</span>
+            <button className={`icon-button whatsnew-btn ${hasNews ? "has-news" : ""}`} aria-label="What’s new" onClick={() => setWhatsNewOpen(true)}>
+              <Sparkles size={18} />
+            </button>
             <SoundControl sound={sound} volume={volume} onToggle={toggleSound} onVolume={changeVolume} />
             <button className="icon-button" aria-label={fullscreen ? "Exit full screen" : "Enter full screen"} onClick={toggleFullscreen}>
               {fullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
@@ -917,6 +950,8 @@ export default function Home() {
         onConfirm={() => confirm?.onConfirm()}
         onCancel={() => setConfirm(null)}
       />
+
+      <WhatsNew open={whatsNewOpen} items={WHATS_NEW_ITEMS} onClose={dismissWhatsNew} />
 
       <footer>
         <div className="wrap footer-grid">
